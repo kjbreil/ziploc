@@ -1,0 +1,17 @@
+github.com/gorilla/mux v1.7.3/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
+github.com/iancoleman/strcase v0.0.0-20190422225806-e506e3ef7365/go.mod h1:SK73tn/9oHe+/Y0h39VT4UCxmurVJkR5NA7kMEAOgSE=
+github.com/kardianos/service v1.0.0/go.mod h1:8CzDhVuCuugtsHyZoTvsOBuvonN/UDBvl0kH+BUxvbo=
+github.com/kjbreil/crcloc v0.0.0-20191129165521-8fe67cc484a9 h1:ecbVmgTrtdPtmKfaR8u3HLwQGGMQTb0Tjr6PJQHyTgo=
+github.com/kjbreil/crcloc v0.0.0-20191129165521-8fe67cc484a9/go.mod h1:9oaemd9Rmj7g13FvnXt69UJb64gF/nhmhliHRxKVkGE=
+github.com/kjbreil/sil v0.0.0-20191125171533-a96ca0132376 h1:0p2rtj5D6hlPV8ViPB3fbaGFJZDkmKCbHhTBjDPaldA=
+github.com/kjbreil/sil v0.0.0-20191125171533-a96ca0132376/go.mod h1:yUpTMHvncUUYZsZqFdkTKSMaMDugYfgzMnkq3YdYWF4=
+github.com/kjbreil/sil v0.0.0-20191129194348-197bcc0c4c52 h1:ULLb7M1DQ5tNX+7avpoxeURLeJHdMFUCkDdchvU8CaA=
+github.com/kjbreil/sil v0.0.0-20191129194348-197bcc0c4c52/go.mod h1:yUpTMHvncUUYZsZqFdkTKSMaMDugYfgzMnkq3YdYWF4=
+github.com/kjbreil/sil v0.0.0-20191129195958-f5252b4ed80c h1:JAU2RrFUzPXEbo5Me8oIzpt4NLqHWHk1SV0YMZlX0FM=
+github.com/kjbreil/sil v0.0.0-20191129195958-f5252b4ed80c/go.mod h1:yUpTMHvncUUYZsZqFdkTKSMaMDugYfgzMnkq3YdYWF4=
+github.com/kjbreil/sil v0.0.0-20191129200317-270460a92a45 h1:pizzNqfZrsI/xtdVWcuzFk9d9uoXuqoll/X+TK7uMgk=
+github.com/kjbreil/sil v0.0.0-20191129200317-270460a92a45/go.mod h1:yUpTMHvncUUYZsZqFdkTKSMaMDugYfgzMnkq3YdYWF4=
+github.com/kjbreil/sil v0.0.0-20191129201931-8ee154daf882 h1:LmARDnbOoR+aq5J4xfTdY9CDkijfl4wUzyJXLWXzMY4=
+github.com/kjbreil/sil v0.0.0-20191129201931-8ee154daf882/go.mod h1:yUpTMHvncUUYZsZqFdkTKSMaMDugYfgzMnkq3YdYWF4=
+golang.org/x/sys v0.0.0-20190204203706-41f3e6584952/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
+golang.org/x/sys v0.0.0-20191018095205-727590c5006e/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
