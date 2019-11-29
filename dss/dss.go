@@ -1,0 +1,98 @@
+package dss
+
+import (
+	"fmt"
+	"log"
+	"os"
+	"path"
+	"path/filepath"
+	"strings"
+
+	"github.com/kjbreil/crcloc"
+
+	"github.com/kjbreil/sil"
+)
+
+// DSS is fed the info about the files and outputs a DSS file
+type DSS struct {
+	Name string
+	SIL  *sil.SIL
+}
+
+func New(name string) *DSS {
+	// make the sil object
+	s := sil.Make("DSS", dssTable{})
+	// change to a LOAD file
+	s.View.Action = "LOAD"
+	// append the
+	activate(s)
+
+	return &DSS{
+		Name: makeName(name),
+		SIL:  s,
+	}
+}
+
+func makeName(name string) string {
+	return strings.ToUpper(strings.ReplaceAll(name, " ", "_"))
+}
+
+// Add a file to the DSS, fp is the path of the file
+func (d *DSS) Add(fp string) error {
+
+	f, err := os.Open(fp)
+	if err != nil {
+		return fmt.Errorf("could not open %s with error: %v", fp, err)
+	}
+	defer f.Close()
+
+	info, err := f.Stat()
+	if err != nil {
+		return fmt.Errorf("could not stat %s with error: %v", fp, err)
+	}
+
+	b := make([]byte, info.Size())
+
+	_, err = f.Read(b)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
+		Priority:    30,
+		Author:      "KYGL",
+		Option:      d.Name,
+		Destination: Destination(fp),
+		Script:      path.Base(fp),
+		FileDate:    sil.JulianDateTime(info.ModTime()),
+		Signature:   crcloc.Hash(b),
+	})
+
+	return nil
+}
+
+func (d *DSS) writeFile(filename string) error {
+
+	fmt.Println(d.SIL.View.Name)
+
+	err := d.SIL.Write(filename, true, true)
+	if err != nil {
+		return fmt.Errorf("could not write file %s: %v", filename, err)
+	}
+
+	return nil
+}
+
+func activate(s *sil.SIL) {
+	s.Append("DELETE FROM DSS_TAB WHERE F2729 IN (SELECT F2729 FROM DSS_LOAD);")
+	s.Append("@UPDATE_BATCH(JOB=ADDRPL,TAR=DSS_TAB,KEY=F2729=:F2729 AND F2730=:F2730 AND F2731=:F2731,")
+	s.Append("SRC=SELECT * FROM DSS_LOAD);")
+	s.Append("DROP TABLE DSS_LOAD;")
+}
+
+// Destination takes a filepath and gets the last dir
+// exported because the same name is used to make the zip file
+func Destination(fp string) string {
+	// return the directory where the file is then just the base of the directory, uppercase it
+	return strings.ToUpper(filepath.Base(filepath.Dir(fp)))
+}
