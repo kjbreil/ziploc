@@ -1,23 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/kjbreil/crcloc"
-	"github.com/kjbreil/sil"
+	"github.com/kjbreil/ziploc/dss"
 )
 
 type Option struct {
 	ZipFilename string
 	BaseFolder  string
 	Include     []string
+	Type        string // Options or Samples
 	Files       map[string]os.FileInfo
-	DSS         sil.SIL
+	DSS         *dss.DSS
 }
 
 func main() {
@@ -26,6 +24,8 @@ func main() {
 	o := Option{
 		BaseFolder: "./example/Samples",
 		Files:      make(map[string]os.FileInfo),
+		Type:       "Samples",
+		DSS:        dss.New("PCC SH BASE LB"),
 	}
 	// just for now until config is built
 	o.Include = []string{
@@ -40,19 +40,18 @@ func main() {
 		}
 		return nil
 	})
-
 	if err != nil {
 		log.Panic(err)
 	}
 
-	for path, info := range o.Files {
-		b, err := ioutil.ReadFile(path)
-		if err != nil {
-			log.Panic(err)
-		}
-		hash := crcloc.Hash(b)
-		fmt.Printf("file: %s has hash: %s\n", info.Name(), hash)
+	// loop over the paths and
+	for path, _ := range o.Files {
+		o.DSS.Add(path)
+	}
 
+	err = o.DSS.Write(filepath.Join("./out", o.Type, o.DSS.Name))
+	if err != nil {
+		log.Println(err)
 	}
 
 }

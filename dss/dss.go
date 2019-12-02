@@ -71,13 +71,21 @@ func (d *DSS) Add(fp string) error {
 	return nil
 }
 
-func (d *DSS) writeFile(filename string) error {
+// Write writes a DSS to file
+func (d *DSS) Write(folder string) error {
 
-	fmt.Println(d.SIL.View.Name)
+	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.Name))
 
-	err := d.SIL.Write(filename, true, true)
+	if _, err := os.Stat(filepath.Dir(fullpath)); os.IsNotExist(err) {
+		err = os.MkdirAll(filepath.Dir(fullpath), 0777)
+		if err != nil {
+			return fmt.Errorf("could not create directory: %v", err)
+		}
+	}
+
+	err := d.SIL.Write(fullpath, true, false)
 	if err != nil {
-		return fmt.Errorf("could not write file %s: %v", filename, err)
+		return fmt.Errorf("could not write file %s: %v", fullpath, err)
 	}
 
 	return nil
