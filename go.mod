@@ -1,4 +1,4 @@
-module github.com/kaygel/ziploc
+module github.com/kjbreil/ziploc
 
 go 1.13
 
