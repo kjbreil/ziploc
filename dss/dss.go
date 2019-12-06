@@ -13,7 +13,7 @@ import (
 	"github.com/kjbreil/sil"
 )
 
-// DSS is fed the info about the files and outputs a DSS file
+// dss is fed the info about the files and outputs a dss file
 type DSS struct {
 	Name string
 	SIL  *sil.SIL
@@ -21,7 +21,7 @@ type DSS struct {
 
 func New(name string) *DSS {
 	// make the sil object
-	s := sil.Make("DSS", dssTable{})
+	s := sil.Make("dss", dssTable{})
 	// change to a LOAD file
 	s.View.Action = "LOAD"
 	// append the
@@ -37,7 +37,7 @@ func makeName(name string) string {
 	return strings.ToUpper(strings.ReplaceAll(name, " ", "_"))
 }
 
-// Add a file to the DSS, fp is the path of the file
+// Add a file to the dss, fp is the path of the file
 func (d *DSS) Add(fp string) error {
 
 	f, err := os.Open(fp)
@@ -71,7 +71,7 @@ func (d *DSS) Add(fp string) error {
 	return nil
 }
 
-// Write writes a DSS to file
+// Write writes a dss to file
 func (d *DSS) Write(folder string) error {
 
 	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.Name))
