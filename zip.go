@@ -11,7 +11,9 @@ import (
 func (o *Option) makeZip() error {
 	zipFilename := o.dss.Name + ".zip"
 
-	zipFile, err := os.Create(zipFilename)
+	zipPath := filepath.Join(o.ZipOut, zipFilename)
+
+	zipFile, err := os.Create(zipPath)
 	if err != nil {
 		return err
 	}
