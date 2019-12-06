@@ -45,6 +45,13 @@ func main() {
 	}
 
 	// TODO: Delete the temp directory before doing anything
+	// stat the tempdir and delete if there is no error (directory exists)
+	_, err = os.Stat(o.TempDir)
+	if err == nil {
+		log.Printf("Removing temp directory: %s\n", o.TempDir)
+		os.RemoveAll(o.TempDir)
+	}
+
 	// TODO: Replace spaces in foldername to make safer and easier to work with
 
 	log.Println("Walking Path", o.BaseFolder)
@@ -53,14 +60,17 @@ func main() {
 	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && o.included(info.Name()) {
 
+			// TODO: fix because this will ignore the samples file which we don't want to do and probably a better way of doing this
 			switch {
-			case strings.Contains("TEMP", path):
+			case strings.Contains(strings.ToUpper(path), "TEMP"):
 				return nil
-			case strings.Contains("SAMPLES", path):
+			case strings.Contains(strings.ToUpper(path), "SAMPLES"):
 				return nil
-			case strings.Contains("OPTIONS", path):
+			case strings.Contains(strings.ToUpper(path), "OPTIONS"):
 				return nil
 			}
+
+			log.Printf("adding file: %s\n", path)
 
 			o.files[path] = info
 		}
