@@ -60,10 +60,10 @@ func (d *DSS) Add(fp string) error {
 
 	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
 		Priority:    30,
-		Author:      "KYGL",
+		Author:      "PCC",
 		Option:      d.Name,
 		Destination: Destination(fp),
-		Script:      path.Base(fp),
+		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
 		Signature:   crcloc.Hash(b),
 	})
