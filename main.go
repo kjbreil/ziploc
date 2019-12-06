@@ -13,11 +13,12 @@ import (
 )
 
 type Option struct {
-	Name       string   `json:"name,omitempty"`
-	BaseFolder string   `json:"base_folder,omitempty"`
-	Include    []string `json:"include,omitempty"`
-	Type       string   `json:"type,omitempty"` // Options or Samples
-	TempDir    string   `json:"temp_dir,omitempty"`
+	Name       string   `json:"name"`
+	BaseFolder string   `json:"base_folder"`
+	Include    []string `json:"include"`
+	Type       string   `json:"type"` // Options or Samples
+	TempDir    string   `json:"temp_dir"`
+	ZipOut     string   `json:"zip_out"`
 	// Not Exported
 	files map[string]os.FileInfo
 	dss   *dss.DSS
@@ -25,6 +26,7 @@ type Option struct {
 
 var (
 	configLocation = flag.String("c", "", "Config file")
+	makeTemplate   = flag.Bool("template", false, "output a template config file and exit")
 )
 
 func main() {
@@ -32,17 +34,34 @@ func main() {
 	// Parse the flags
 	flag.Parse()
 
+	if *makeTemplate {
+		configTemplate()
+		return
+	}
+
 	o, err := readConfig()
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// TODO: Delete the temp directory before doing anything
+	// TODO: Replace spaces in foldername to make safer and easier to work with
 
+	log.Println("Walking Path", o.BaseFolder)
 	// "walk" the BaseFolder for files, adding them to files if the match
 	// TODO: REGEX for filename matching (optional?)
 	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && o.included(info.Name()) {
+
+			switch {
+			case strings.Contains("TEMP", path):
+				return nil
+			case strings.Contains("SAMPLES", path):
+				return nil
+			case strings.Contains("OPTIONS", path):
+				return nil
+			}
+
 			o.files[path] = info
 		}
 		return nil
@@ -74,8 +93,6 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	configTemplate()
 
 }
 
