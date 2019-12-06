@@ -1,10 +1,9 @@
 package main
 
 import (
-	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,27 +23,25 @@ type Option struct {
 	dss   *dss.DSS
 }
 
+var (
+	configLocation = flag.String("c", "", "Config file")
+)
+
 func main() {
 
-	// setup Option information
-	o := Option{
-		Name:       "PCC SH BASE LB",
-		BaseFolder: "./example/Samples",
-		files:      make(map[string]os.FileInfo),
-		Type:       "Samples",
-		TempDir:    "out",
-	}
-	// just for now until config is built
-	o.Include = []string{
-		"system.ini",
-		"samples.ini",
+	// Parse the flags
+	flag.Parse()
+
+	o, err := readConfig()
+	if err != nil {
+		log.Panic(err)
 	}
 
 	// TODO: Delete the temp directory before doing anything
 
 	// "walk" the BaseFolder for files, adding them to files if the match
 	// TODO: REGEX for filename matching (optional?)
-	err := filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && o.included(info.Name()) {
 			o.files[path] = info
 		}
@@ -125,29 +122,4 @@ func (o *Option) copyDSSFiles() error {
 		_ = o.Close()
 	}
 	return nil
-}
-
-func configTemplate() {
-	// setup Option information
-	o := Option{
-		Name:       "SOME SAMPLE",
-		BaseFolder: "c:\\storeman\\",
-		files:      make(map[string]os.FileInfo),
-		Type:       "Samples",
-		TempDir:    "SOME_SAMPLE",
-	}
-	// just for now until config is built
-	o.Include = []string{
-		"system.ini",
-		"samples.ini",
-	}
-
-	b, err := json.MarshalIndent(o, "", "  ")
-	if err != nil {
-		log.Panic(err)
-	}
-	err = ioutil.WriteFile("./template.json", b, 0666)
-	if err != nil {
-		log.Panic(err)
-	}
 }
