@@ -12,3 +12,9 @@
 *.out
 
 template.json
+example/**
+out/**
+
+ziploc
+
+*.zip
