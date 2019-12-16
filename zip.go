@@ -3,6 +3,7 @@ package main
 import (
 	"archive/zip"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,6 +14,7 @@ func (o *Option) makeZip() error {
 
 	zipPath := filepath.Join(o.ZipOut, zipFilename)
 
+	log.Printf("making zip file %s\n", zipPath)
 	zipFile, err := os.Create(zipPath)
 	if err != nil {
 		return err
