@@ -83,8 +83,11 @@ func main() {
 	// Create a new DSS for this run
 	o.dss = dss.New(o.Name)
 	// loop over the paths and add to the DSS
-	for path, _ := range o.files {
-		o.dss.Add(path)
+	for path := range o.files {
+		err = o.dss.Add(path)
+		if err != nil {
+			log.Panicf("error adding %s to dss: %v\n", path, err)
+		}
 	}
 
 	// Write the DSS to the temp directory
@@ -93,7 +96,11 @@ func main() {
 		log.Println(err)
 	}
 
-	o.writeInstall()
+	err = o.writeInstall()
+	if err != nil {
+		log.Panicf("error writing install file: %v\n", err)
+	}
+
 	err = o.copyDSSFiles()
 	if err != nil {
 		log.Panic(err)
@@ -110,7 +117,7 @@ func (o *Option) included(current string) bool {
 	for folder := range o.Include {
 		for _, item := range o.Include[folder] {
 			// check if it matches, uppercase both
-			if strings.ToUpper(current) == strings.ToUpper(item) {
+			if strings.EqualFold(current, item) {
 				return true
 			}
 		}

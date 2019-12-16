@@ -11,6 +11,7 @@ func Line(b []byte) ([]byte, error) {
 }
 
 // LineS returns a line encoded in Windows1252 with a line ending in a string
+// IGNORES ANY ERROR
 func LineS(s string) string {
 	b, _ := Line([]byte(s))
 	return string(b)
