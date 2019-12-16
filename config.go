@@ -43,9 +43,10 @@ func configTemplate() {
 		files:      make(map[string]os.FileInfo),
 		Type:       "Samples",
 		TempDir:    "SOME_SAMPLE",
+		Include:    make(map[string][]string),
 	}
-	// just for now until config is built
-	o.Include = []string{
+
+	o.Include["every"] = []string{
 		"system.ini",
 		"samples.ini",
 	}

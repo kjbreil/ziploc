@@ -13,12 +13,12 @@ import (
 )
 
 type Option struct {
-	Name       string   `json:"name"`
-	BaseFolder string   `json:"base_folder"`
-	Include    []string `json:"include"`
-	Type       string   `json:"type"` // Options or Samples
-	TempDir    string   `json:"temp_dir"`
-	ZipOut     string   `json:"zip_out"`
+	Name       string              `json:"name"`
+	BaseFolder string              `json:"base_folder"`
+	Include    map[string][]string `json:"include"`
+	Type       string              `json:"type"` // Options or Samples
+	TempDir    string              `json:"temp_dir"`
+	ZipOut     string              `json:"zip_out"`
 	// Not Exported
 	files map[string]os.FileInfo
 	dss   *dss.DSS
@@ -107,10 +107,12 @@ func main() {
 }
 
 func (o *Option) included(current string) bool {
-	for _, ei := range o.Include {
-		// check if it matches, uppercase both
-		if strings.ToUpper(current) == strings.ToUpper(ei) {
-			return true
+	for folder := range o.Include {
+		for _, item := range o.Include[folder] {
+			// check if it matches, uppercase both
+			if strings.ToUpper(current) == strings.ToUpper(item) {
+				return true
+			}
 		}
 	}
 	return false
