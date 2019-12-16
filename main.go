@@ -57,6 +57,12 @@ func main() {
 	log.Println("Walking Path", o.BaseFolder)
 	// "walk" the BaseFolder for files, adding them to files if the match
 	// TODO: REGEX for filename matching (optional?)
+
+	info, err := os.Stat(o.BaseFolder)
+	if err != nil || !info.IsDir() {
+		log.Panicf("Panicing")
+	}
+
 	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() && o.included(info.Name()) {
 
@@ -138,6 +144,7 @@ func (o *Option) copyDSSFiles() error {
 		if err != nil {
 			return err
 		}
+
 		dest := o.makePath(dss.Destination(ep), ef.Name())
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
 			err = os.MkdirAll(filepath.Dir(dest), 0777)
