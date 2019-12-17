@@ -63,18 +63,9 @@ func main() {
 		log.Panicf("Panicing")
 	}
 
+	// TODO: change to own code so walk ignores certain folders completely
 	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && o.included(info.Name()) {
-
-			// TODO: fix because this will ignore the samples file which we don't want to do and probably a better way of doing this
-			switch {
-			case strings.Contains(strings.ToUpper(path), "TEMP"):
-				return nil
-			case strings.Contains(strings.ToUpper(path), "SAMPLES"):
-				return nil
-			case strings.Contains(strings.ToUpper(path), "OPTIONS"):
-				return nil
-			}
+		if !info.IsDir() && o.included(info.Name()) && !excluded(path) {
 
 			log.Printf("adding file: %s\n", path)
 
@@ -119,17 +110,40 @@ func main() {
 
 }
 
+func excluded(current string) bool {
+	switch {
+	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "TEMP"):
+		return true
+	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "SAMPLES"):
+		return true
+	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "OPTIONS"):
+		return true
+	}
+
+	return false
+}
+
 func (o *Option) included(current string) bool {
+	b, _ := o.check(current)
+	return b
+}
+
+func (o *Option) folder(current string) string {
+	_, s := o.check(current)
+	return s
+}
+
+func (o *Option) check(current string) (bool, string) {
 	for folder := range o.Include {
 		for _, item := range o.Include[folder] {
 			// check if it matches, uppercase both
+			// fmt.Println(current, item, strings.EqualFold(current, item))
 			if strings.EqualFold(current, item) {
-				return true
+				return true, folder
 			}
 		}
 	}
-	return false
-
+	return false, ""
 }
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
@@ -144,8 +158,15 @@ func (o *Option) copyDSSFiles() error {
 		if err != nil {
 			return err
 		}
+		var dest string
+		folder := o.folder(ef.Name())
+		if folder == "every" {
+			dest = o.makePath(dss.Destination(ep), ef.Name())
+		} else {
+			newPath := filepath.Join(folder, dss.Destination(ep))
+			dest = o.makePath(newPath, ef.Name())
+		}
 
-		dest := o.makePath(dss.Destination(ep), ef.Name())
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
 			err = os.MkdirAll(filepath.Dir(dest), 0777)
 			if err != nil {
