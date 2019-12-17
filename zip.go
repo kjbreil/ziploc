@@ -10,7 +10,10 @@ import (
 )
 
 func (o *Option) makeZip() error {
-	zipFilename := o.dss.Name + ".zip"
+
+	name := strings.ReplaceAll(strings.Title(o.Name), " ", "_")
+
+	zipFilename := name + ".zip"
 
 	zipPath := filepath.Join(o.ZipOut, zipFilename)
 
