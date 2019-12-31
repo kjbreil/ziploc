@@ -160,9 +160,12 @@ func (o *Option) copyDSSFiles() error {
 		}
 		var dest string
 		folder := o.folder(ef.Name())
-		if folder == "every" {
+		switch folder {
+		case "every":
 			dest = o.makePath(dss.Destination(ep), ef.Name())
-		} else {
+		case "root":
+			dest = o.makePath("", ef.Name())
+		default:
 			newPath := filepath.Join(folder, dss.Destination(ep))
 			dest = o.makePath(newPath, ef.Name())
 		}
