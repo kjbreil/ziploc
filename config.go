@@ -32,6 +32,11 @@ func readConfig() (*Option, error) {
 	// make the files map
 	o.files = make(map[string]os.FileInfo)
 
+	// check if the priority isn't filled and default to 30
+	if o.Priority == 0 {
+		o.Priority = 30
+	}
+
 	return &o, err
 }
 
@@ -39,6 +44,7 @@ func configTemplate() {
 	// setup Option information
 	o := Option{
 		Name:       "SOME SAMPLE",
+		Priority:   30,
 		BaseFolder: "c:\\storeman\\",
 		files:      make(map[string]os.FileInfo),
 		Type:       "Samples",

@@ -14,6 +14,7 @@ import (
 
 type Option struct {
 	Name       string              `json:"name"`
+	Priority   int                 `json:"priority"`
 	BaseFolder string              `json:"base_folder"`
 	Include    map[string][]string `json:"include"`
 	Type       string              `json:"type"` // Options or Samples
@@ -78,9 +79,13 @@ func main() {
 	}
 
 	// Create a new DSS for this run
-	o.dss = dss.New(o.Name)
+	o.dss = dss.New(o.Name, o.Priority)
 	// loop over the paths and add to the DSS
-	for path := range o.files {
+	for path, info := range o.files {
+		// ignore root files
+		if o.folder(info.Name()) == "ROOT" {
+			continue
+		}
 		err = o.dss.Add(path)
 		if err != nil {
 			log.Panicf("error adding %s to dss: %v\n", path, err)
@@ -98,7 +103,7 @@ func main() {
 		log.Panicf("error writing install file: %v\n", err)
 	}
 
-	err = o.copyDSSFiles()
+	err = o.copyFiles()
 	if err != nil {
 		log.Panic(err)
 	}
@@ -130,7 +135,7 @@ func (o *Option) included(current string) bool {
 
 func (o *Option) folder(current string) string {
 	_, s := o.check(current)
-	return s
+	return strings.ToUpper(s)
 }
 
 func (o *Option) check(current string) (bool, string) {
@@ -152,7 +157,7 @@ func (o *Option) makePath(folder string, filename string) string {
 	return p
 }
 
-func (o *Option) copyDSSFiles() error {
+func (o *Option) copyFiles() error {
 	for ep, ef := range o.files {
 		f, err := os.Open(ep)
 		if err != nil {
@@ -161,9 +166,9 @@ func (o *Option) copyDSSFiles() error {
 		var dest string
 		folder := o.folder(ef.Name())
 		switch folder {
-		case "every":
+		case "EVERY":
 			dest = o.makePath(dss.Destination(ep), ef.Name())
-		case "root":
+		case "ROOT":
 			dest = o.makePath("", ef.Name())
 		default:
 			newPath := filepath.Join(folder, dss.Destination(ep))

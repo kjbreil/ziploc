@@ -15,11 +15,12 @@ import (
 
 // dss is fed the info about the files and outputs a dss file
 type DSS struct {
-	Name string
-	SIL  *sil.SIL
+	Name     string
+	SIL      *sil.SIL
+	priority int
 }
 
-func New(name string) *DSS {
+func New(name string, priority int) *DSS {
 	// make the sil object
 	s := sil.Make("dss", dssTable{})
 	// change to a LOAD file
@@ -28,8 +29,9 @@ func New(name string) *DSS {
 	activate(s)
 
 	return &DSS{
-		Name: makeName(name),
-		SIL:  s,
+		Name:     makeName(name),
+		SIL:      s,
+		priority: priority,
 	}
 }
 
@@ -39,6 +41,11 @@ func makeName(name string) string {
 
 // Add a file to the dss, fp is the path of the file
 func (d *DSS) Add(fp string) error {
+
+	// ignore anything in the INBOX as that is not confirmed in the DSS
+	if Destination(fp) == "INBOX" {
+		return nil
+	}
 
 	f, err := os.Open(fp)
 	if err != nil {
@@ -59,7 +66,7 @@ func (d *DSS) Add(fp string) error {
 	}
 
 	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
-		Priority:    30,
+		Priority:    d.priority,
 		Author:      "PCC",
 		Option:      d.Name,
 		Destination: Destination(fp),
