@@ -12,6 +12,7 @@ import (
 	"github.com/kjbreil/ziploc/dss"
 )
 
+// Option is a LOC option type
 type Option struct {
 	Name       string              `json:"name"`
 	Priority   int                 `json:"priority"`
@@ -64,16 +65,8 @@ func main() {
 		log.Panicf("Panicing")
 	}
 
-	// TODO: change to own code so walk ignores certain folders completely
-	err = filepath.Walk(o.BaseFolder, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() && o.included(info.Name()) && !excluded(path) {
+	err = o.walk(o.BaseFolder)
 
-			log.Printf("adding file: %s\n", path)
-
-			o.files[path] = info
-		}
-		return nil
-	})
 	if err != nil {
 		log.Panic(err)
 	}
@@ -128,27 +121,9 @@ func excluded(current string) bool {
 	return false
 }
 
-func (o *Option) included(current string) bool {
-	b, _ := o.check(current)
-	return b
-}
-
 func (o *Option) folder(current string) string {
 	_, s := o.check(current)
 	return strings.ToUpper(s)
-}
-
-func (o *Option) check(current string) (bool, string) {
-	for folder := range o.Include {
-		for _, item := range o.Include[folder] {
-			// check if it matches, uppercase both
-			// fmt.Println(current, item, strings.EqualFold(current, item))
-			if strings.EqualFold(current, item) {
-				return true, folder
-			}
-		}
-	}
-	return false, ""
 }
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
