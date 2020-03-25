@@ -18,6 +18,7 @@ type Option struct {
 	Priority   int                 `json:"priority"`
 	BaseFolder string              `json:"base_folder"`
 	Include    map[string][]string `json:"include"`
+	Exclude    []string            `json:"exclude"`
 	Type       string              `json:"type"` // Options or Samples
 	TempDir    string              `json:"temp_dir"`
 	ZipOut     string              `json:"zip_out"`
@@ -106,19 +107,6 @@ func main() {
 		log.Panic(err)
 	}
 
-}
-
-func excluded(current string) bool {
-	switch {
-	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "TEMP"):
-		return true
-	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "SAMPLES"):
-		return true
-	case strings.Contains(strings.ToUpper(filepath.Dir(current)), "OPTIONS"):
-		return true
-	}
-
-	return false
 }
 
 func (o *Option) folder(current string) string {

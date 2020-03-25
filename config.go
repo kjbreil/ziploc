@@ -37,6 +37,13 @@ func readConfig() (*Option, error) {
 		o.Priority = 30
 	}
 
+	// create the default excludes
+	o.Exclude = append(o.Exclude, []string{
+		"TEMP",
+		"SAMPLES",
+		"OPTIONS",
+	}...)
+
 	return &o, err
 }
 
