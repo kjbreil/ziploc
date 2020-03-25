@@ -1,10 +1,5 @@
 package macro
 
-import (
-	"io/ioutil"
-	"testing"
-)
-
 // func TestPrimary(t *testing.T) {
 // 	type args struct {
 // 		function  string
@@ -26,8 +21,8 @@ import (
 // 	}
 // }
 
-func TestPrimary(t *testing.T) {
-	b, _ := Line(Primary("FMT", "CMP", PrimaryS("WIZGET", "INSTALL_STEP"), "<3", InnserS("FMT", "26")))
-	// b := InnserS("CHR", "26")
-	ioutil.WriteFile("./test.txt", b, 0666)
-}
+// func TestPrimary(t *testing.T) {
+// 	b, _ := Line(Primary("FMT", "CMP", PrimaryS("WIZGET", "INSTALL_STEP"), "<3", InnserS("FMT", "26")))
+// 	// b := InnserS("CHR", "26")
+// 	ioutil.WriteFile("./test.txt", b, 0666)
+// }

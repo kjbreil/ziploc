@@ -10,6 +10,10 @@ import (
 )
 
 func (o *Option) walk(folder string) error {
+	if o.excluded(filepath.Base(folder)) {
+		return nil
+	}
+
 	stat, err := os.Stat(folder)
 	if err != nil {
 		return err
@@ -25,18 +29,14 @@ func (o *Option) walk(folder string) error {
 
 	for _, eachFile := range files {
 		p := filepath.Join(folder, eachFile.Name())
-
 		if eachFile.IsDir() {
 			o.walk(p)
 		}
-
-		if !eachFile.IsDir() && o.included(eachFile.Name()) && !excluded(p) {
+		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(p) {
 			log.Printf("adding file: %s\n", p)
 			o.files[p] = eachFile
 		}
-
 	}
-
 	return nil
 }
 
