@@ -32,7 +32,7 @@ func (o *Option) walk(folder string) error {
 		if eachFile.IsDir() {
 			o.walk(p)
 		}
-		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(p) {
+		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			log.Printf("adding file: %s\n", p)
 			o.files[p] = eachFile
 		}
