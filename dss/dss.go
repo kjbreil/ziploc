@@ -51,7 +51,6 @@ func (d *DSS) Add(fp string) error {
 	if err != nil {
 		return fmt.Errorf("could not open %s with error: %v", fp, err)
 	}
-	defer f.Close()
 
 	info, err := f.Stat()
 	if err != nil {
@@ -63,6 +62,11 @@ func (d *DSS) Add(fp string) error {
 	_, err = f.Read(b)
 	if err != nil {
 		log.Panic(err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		return err
 	}
 
 	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
