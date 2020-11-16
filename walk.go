@@ -30,7 +30,10 @@ func (o *Option) walk(folder string) error {
 	for _, eachFile := range files {
 		p := filepath.Join(folder, eachFile.Name())
 		if eachFile.IsDir() {
-			o.walk(p)
+			err = o.walk(p)
+			if err != nil {
+				return err
+			}
 		}
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			log.Printf("adding file: %s\n", p)

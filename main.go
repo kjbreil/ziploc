@@ -52,7 +52,10 @@ func main() {
 	_, err = os.Stat(o.TempDir)
 	if err == nil {
 		log.Printf("Removing temp directory: %s\n", o.TempDir)
-		os.RemoveAll(o.TempDir)
+		err = os.RemoveAll(o.TempDir)
+		if err != nil {
+			log.Panicln(err)
+		}
 	}
 
 	// TODO: Replace spaces in foldername to make safer and easier to work with

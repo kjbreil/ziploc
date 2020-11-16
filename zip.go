@@ -22,10 +22,9 @@ func (o *Option) makeZip() error {
 	if err != nil {
 		return err
 	}
-	defer zipFile.Close()
 
+	// open a new zipWriter, explicitly closed at end of function
 	zipWriter := zip.NewWriter(zipFile)
-	defer zipWriter.Close()
 
 	files := make(map[string]os.FileInfo)
 
@@ -45,6 +44,15 @@ func (o *Option) makeZip() error {
 		if err != nil {
 			return err
 		}
+	}
+
+	err = zipFile.Close()
+	if err != nil {
+		return err
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		return err
 	}
 
 	return nil
