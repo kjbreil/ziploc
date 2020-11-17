@@ -47,7 +47,7 @@ func readConfig() (*Option, error) {
 	return &o, err
 }
 
-func configTemplate() {
+func configTemplate(withGit bool) {
 	// setup Option information
 	o := Option{
 		Name:       "SOME SAMPLE",
@@ -57,6 +57,13 @@ func configTemplate() {
 		Type:       "Samples",
 		TempDir:    "SOME_SAMPLE",
 		Include:    make(map[string][]string),
+	}
+
+	if withGit {
+		o.Git = &Git{
+			URL:    "https://github.com/kjbreil/ncbp_lab",
+			Branch: "master",
+		}
 	}
 
 	o.Include["every"] = []string{
