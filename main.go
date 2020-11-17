@@ -15,6 +15,7 @@ import (
 // Option is a LOC option type
 type Option struct {
 	Name       string              `json:"name"`
+	Git        *Git                `json:"git,omitempty"`
 	Priority   int                 `json:"priority"`
 	BaseFolder string              `json:"base_folder"`
 	Include    map[string][]string `json:"include"`
@@ -25,6 +26,13 @@ type Option struct {
 	// Not Exported
 	files map[string]os.FileInfo
 	dss   *dss.DSS
+}
+
+type Git struct {
+	URL       string `json:"url"`
+	Branch    string `json:"branch"`
+	Username  string `json:"username"`
+	AuthToken string `json:"auth_token"`
 }
 
 var (
@@ -38,13 +46,20 @@ func main() {
 	flag.Parse()
 
 	if *makeTemplate {
-		configTemplate()
+		configTemplate(true)
 		return
 	}
 
 	o, err := readConfig()
 	if err != nil {
 		log.Panic(err)
+	}
+
+	if o.Git != nil {
+		err = o.doGitRepo()
+		if err != nil {
+			log.Panicln(err)
+		}
 	}
 
 	// TODO: Delete the temp directory before doing anything
@@ -115,6 +130,10 @@ func main() {
 func (o *Option) folder(current string) string {
 	_, s := o.check(current)
 	return strings.ToUpper(s)
+}
+
+func (o *Option) safeName() string {
+	return strings.ReplaceAll(strings.Title(o.Name), " ", "_")
 }
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths

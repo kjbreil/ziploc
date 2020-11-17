@@ -71,7 +71,7 @@ func (d *DSS) Add(fp string) error {
 
 	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
 		Priority:    d.priority,
-		Author:      "PCC",
+		Author:      "NCBP",
 		Option:      d.Name,
 		Destination: Destination(fp),
 		Script:      filepath.Base(fp),
