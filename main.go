@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io"
+	"github.com/kjbreil/ziploc/macro"
 	"log"
 	"os"
 	"path/filepath"
@@ -171,7 +171,7 @@ func (o *Option) copyFiles() error {
 		if err != nil {
 			return err
 		}
-		_, err = io.Copy(o, f)
+		err = macro.Correct(o, f)
 		if err != nil {
 			return err
 		}
