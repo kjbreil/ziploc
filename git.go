@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func (o *Option) localName() string {
@@ -33,12 +34,12 @@ func (o *Option) doGitRepo() error {
 			Auth:     auth,
 		})
 		if err != nil {
-			log.Println("here", err)
+			return err
 		}
 	} else {
 		r, err = git.PlainOpen(o.localName())
 		if err != nil {
-			log.Println("there", err)
+			return err
 		}
 	}
 
@@ -87,7 +88,8 @@ func (o *Option) doGitRepo() error {
 		fmt.Println(err)
 	}
 
-	o.BaseFolder = o.safeName()
+	// set the basefolder with the safeName() and then basefolder, filepath for windows safety
+	o.BaseFolder = filepath.Join(o.safeName(), o.BaseFolder)
 
 	return nil
 }
