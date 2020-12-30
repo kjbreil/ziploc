@@ -50,6 +50,9 @@ func (o *Option) included(current string) bool {
 
 func (o *Option) check(current string) (bool, string) {
 	for folder := range o.Include {
+		if folder == "EVERY" {
+			continue
+		}
 		for _, item := range o.Include[folder] {
 			// check if it matches, uppercase both
 			// fmt.Println(current, item, strings.EqualFold(current, item))
@@ -64,6 +67,19 @@ func (o *Option) check(current string) (bool, string) {
 			}
 
 		}
+	}
+
+	for _, item := range o.Include["EVERY"] {
+
+		reg, err := regexp.Compile("(?i)" + item)
+		if err != nil {
+			log.Panicf("regex could not compile %s: %v", item, err)
+		}
+
+		if reg.MatchString(current) {
+			return true, "EVERY"
+		}
+
 	}
 	return false, ""
 }

@@ -46,11 +46,12 @@ func (o *Option) makeZip() error {
 		}
 	}
 
-	err = zipFile.Close()
+	err = zipWriter.Close()
 	if err != nil {
 		return err
 	}
-	err = zipWriter.Close()
+
+	err = zipFile.Close()
 	if err != nil {
 		return err
 	}
