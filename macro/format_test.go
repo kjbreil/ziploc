@@ -1,5 +1,10 @@
 package macro
 
+import (
+	"os"
+	"testing"
+)
+
 // func TestPrimary(t *testing.T) {
 // 	type args struct {
 // 		function  string
@@ -26,3 +31,43 @@ package macro
 // 	// b := InnserS("CHR", "26")
 // 	ioutil.WriteFile("./test.txt", b, 0666)
 // }
+
+func TestCRLF(t *testing.T) {
+	// test := fmt.Sprintf("testing\nnewline\ncrlf\r\ntext")
+	// CRLF([]byte(test))
+
+	fn := "./crlftest.txt"
+
+	// fi, err := os.Stat(fn)
+	// if err != nil {
+	// 	t.Fatalf("crlftest file does not exist")
+	// }
+
+	f, err := os.Open(fn)
+	if err != nil {
+		t.Fatalf("crlftest file could not be opened")
+	}
+	//
+	// fi, _ := f.Stat()
+	//
+	// b := make([]byte, fi.Size())
+	//
+	// _, _ = f.Read(b)
+	//
+	// b, _ = CRLF(b)
+	//
+	// o, err := os.Create("./corrected.txt")
+	//
+	// _, _ = o.Write(b)
+	//
+	// _, _ = io.Copy(o, f)
+
+	o, err := os.Create("./corrected.txt")
+
+	err = Correct(o, f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Fail()
+
+}

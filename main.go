@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/kjbreil/ziploc/dss"
@@ -63,7 +64,7 @@ func main() {
 	}
 
 	// TODO: Delete the temp directory before doing anything
-	// stat the tempdir and delete if there is no error (directory exists)
+	// stat the tmpdir and delete if there is no error (directory exists)
 	_, err = os.Stat(o.TempDir)
 	if err == nil {
 		log.Printf("Removing temp directory: %s\n", o.TempDir)
@@ -73,7 +74,7 @@ func main() {
 		}
 	}
 
-	// TODO: Replace spaces in foldername to make safer and easier to work with
+	// TODO: Replace spaces in folder name to make safer and easier to work with
 
 	log.Println("Walking Path", o.BaseFolder)
 	// "walk" the BaseFolder for files, adding them to files if the match
@@ -149,7 +150,13 @@ func (o *Option) copyFiles() error {
 			return err
 		}
 		var dest string
-		folder := o.folder(ef.Name())
+
+		m := regexp.MustCompile(`SP-\d{3}`)
+		folder := m.FindString(ep)
+		if folder == "" {
+			folder = o.folder(ef.Name())
+		}
+
 		switch folder {
 		case "EVERY":
 			dest = o.makePath(dss.Destination(ep), ef.Name())
@@ -167,16 +174,19 @@ func (o *Option) copyFiles() error {
 			}
 		}
 
-		o, err := os.Create(dest)
+		out, err := os.Create(dest)
 		if err != nil {
 			return err
 		}
-		err = macro.Correct(o, f)
+
+		err = macro.Correct(out, f)
 		if err != nil {
+			log.Println(dest)
 			return err
 		}
+
 		_ = f.Close()
-		_ = o.Close()
+		_ = out.Close()
 	}
 	return nil
 }
