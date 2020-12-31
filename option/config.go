@@ -37,16 +37,20 @@ func ReadConfig(configLocation *string) (*Option, error) {
 		o.Priority = 30
 	}
 
-	// create the default excludes
-	if len(o.Exclude) == 0 {
-		o.Exclude = append(o.Exclude, []string{
-			"TEMP",
-			"SAMPLES",
-			"OPTIONS",
-		}...)
-	}
-
 	return &o, err
+}
+
+func (o *Option) DefaultExclude() {
+	o.Exclude = &[]string{
+		"TEMP",
+		"SAMPLES",
+		"OPTIONS",
+	}
+}
+
+func (o *Option) DefaultInclude() {
+	o.Include = make(map[string][]string)
+	o.Include["every"] = []string{".*"}
 }
 
 func ConfigTemplate(withGit bool) {
@@ -56,7 +60,7 @@ func ConfigTemplate(withGit bool) {
 		Priority:   30,
 		BaseFolder: "c:\\storeman\\",
 		Files:      make(map[string]os.FileInfo),
-		Type:       "Samples",
+		IsSample:   true,
 		TempDir:    "SOME_SAMPLE",
 		Include:    make(map[string][]string),
 	}
