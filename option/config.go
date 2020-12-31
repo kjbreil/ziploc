@@ -1,4 +1,4 @@
-package ziploc
+package option
 
 import (
 	"encoding/json"

@@ -1,15 +1,15 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
-	"github.com/kjbreil/ziploc"
+	"github.com/kjbreil/ziploc/option"
 	"log"
 )
 
 type ui struct {
-	option *ziploc.Option
+	o *option.Option
 
 	a fyne.App
 	w fyne.Window
@@ -18,15 +18,13 @@ type ui struct {
 	// toolbar *fyne.Container
 }
 
-func main() {
+func OpenGui() {
 	u := new(ui)
 	u.init()
 
 	u.a = app.New()
 	u.w = u.a.NewWindow("Box Layout")
 
-	// u.toolbar = u.createToolbar()
-	// u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), u.toolbar))
 	u.loadWindow()
 	u.w.Resize(fyne.NewSize(640, 460))
 
@@ -41,7 +39,7 @@ func (u *ui) loadJsonConfig(filename *string) {
 
 	u.configLocation = *filename
 
-	u.option, err = ziploc.ReadConfig(filename)
+	u.o, err = option.ReadConfig(filename)
 	if err != nil {
 		// TODO: Make this present an error dialog
 		log.Panic(err)

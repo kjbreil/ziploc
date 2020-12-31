@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne"
@@ -21,16 +21,16 @@ func (u *ui) createToolbar() *fyne.Container {
 		u.loadJsonConfig(&filename)
 	}))
 
-	// a config is loaded so show buttons for interacting with the option
-	if u.option != nil {
+	// a config is loaded so show buttons for interacting with the o
+	if u.o != nil {
 		// open config form button
 		items = append(items, widget.NewButton("Config", func() {
 			u.configWindow()
 		}))
-		// Spacer so option name is on right
+		// Spacer so o name is on right
 		items = append(items, layout.NewSpacer())
 		// Option Name
-		items = append(items, widget.NewLabel(u.option.Name))
+		items = append(items, widget.NewLabel(u.o.Name))
 	}
 
 	container := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), items...)
