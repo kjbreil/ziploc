@@ -13,15 +13,18 @@ import (
 
 // Option is a LOC option type
 type Option struct {
-	Name       string              `json:"name"`
-	Git        *Git                `json:"git,omitempty"`
-	Priority   int                 `json:"priority"`
-	BaseFolder string              `json:"base_folder"`
-	Include    map[string][]string `json:"include"`
-	Exclude    []string            `json:"exclude"`
-	Type       string              `json:"type"` // Options or Samples
-	TempDir    string              `json:"temp_dir"`
-	ZipOut     string              `json:"zip_out"`
+	Name        string              `json:"name"`
+	Git         *Git                `json:"git,omitempty"`
+	Priority    int                 `json:"priority"`
+	BaseFolder  string              `json:"base_folder"`
+	Include     map[string][]string `json:"include"`
+	Exclude     []string            `json:"exclude"`
+	Type        string              `json:"type"` // Options or Samples
+	IsSample    bool                `json:"is_sample"`
+	Instance    string              `json:"instance"`
+	InstanceDir string              `json:"instance_dir"`
+	TempDir     string              `json:"temp_dir"`
+	ZipOut      string              `json:"zip_out"`
 	// Not Exported
 	Files map[string]os.FileInfo
 	Dss   *dss.DSS
@@ -95,4 +98,16 @@ func (o *Option) CopyFiles() error {
 		_ = out.Close()
 	}
 	return nil
+}
+
+func (o *Option) DeleteTemp() {
+	// stat the tmpdir and delete if there is no error (directory exists)
+	_, err := os.Stat(o.TempDir)
+	if err == nil {
+		log.Printf("Removing temp directory: %s\n", o.TempDir)
+		err = os.RemoveAll(o.TempDir)
+		if err != nil {
+			log.Panicln(err)
+		}
+	}
 }

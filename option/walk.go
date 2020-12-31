@@ -10,9 +10,6 @@ import (
 )
 
 func (o *Option) Walk(folder string) error {
-	if o.excluded(filepath.Base(folder)) {
-		return nil
-	}
 
 	stat, err := os.Stat(folder)
 	if err != nil {
@@ -34,11 +31,10 @@ func (o *Option) Walk(folder string) error {
 			if err != nil {
 				return err
 			}
+			continue
 		}
-		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
-			log.Printf("adding file: %s\n", p)
-			o.Files[p] = eachFile
-		}
+		// log.Printf("adding file: %s\n", p)
+		o.Files[p] = eachFile
 	}
 	return nil
 }

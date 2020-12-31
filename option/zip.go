@@ -71,7 +71,6 @@ func addFileToZip(zipWriter *zip.Writer, filePath string, fileInfo os.FileInfo, 
 	}
 
 	header.Name = strings.Replace(filePath, tempDir, "", 1)
-
 	header.Method = zip.Deflate
 
 	writer, err := zipWriter.CreateHeader(header)
