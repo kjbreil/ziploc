@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func (o *Option) FromBase(root string) {
+func (o *Option) FromBase(root string) error {
 	o.DeleteTemp(root)
 
 	baseWithRoot := filepath.Join(root, o.BaseFolder)
@@ -20,53 +20,54 @@ func (o *Option) FromBase(root string) {
 
 	info, err := os.Stat(baseWithRoot)
 	if err != nil || !info.IsDir() {
-		log.Panic(err)
+		return fmt.Errorf("base directory not found %v", err)
 	}
 
 	err = o.Walk(baseWithRoot)
-
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	// Create a new DSS for this run
-	o.Dss = dss.New(o.Name, o.Priority)
+	o.dss = dss.New(o.Name, o.Priority)
 	// loop over the paths and add to the DSS
-	for path, info := range o.Files {
+	for path, info := range o.files {
 		// ignore root files
 		if o.Folder(info.Name()) == "ROOT" {
 			continue
 		}
-		err = o.Dss.Add(path)
+		err = o.dss.Add(path)
 		if err != nil {
-			log.Panicf("error adding %s to dss: %v\n", path, err)
+			return fmt.Errorf("error adding %s to dss: %v\n", path, err)
 		}
 	}
 
 	// Write the DSS to the temp directory
-	err = o.Dss.Write(filepath.Join(root, o.TempDir, o.getType(), o.Dss.Name))
+	err = o.dss.Write(filepath.Join(root, o.TempDir, o.getType(), o.dss.Name))
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	err = o.WriteInstall(root)
 	if err != nil {
-		log.Panicf("error writing install file: %v\n", err)
+		return fmt.Errorf("error writing install file: %v\n", err)
 	}
 
 	err = o.CopyBase(root)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 
 	err = o.MakeZip(root)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
+
+	return nil
 }
 
 func (o *Option) CopyBase(root string) error {
-	for ep, ef := range o.Files {
+	for ep, ef := range o.files {
 		f, err := os.Open(ep)
 		if err != nil {
 			return err

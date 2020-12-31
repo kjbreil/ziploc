@@ -6,7 +6,6 @@ import (
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	sysDiag "github.com/sqweek/dialog"
-	"log"
 	"path/filepath"
 )
 
@@ -18,9 +17,10 @@ func (u *ui) createToolbar() *fyne.Container {
 	items = append(items, widget.NewButton("Open", func() {
 		filename, err := sysDiag.File().Filter("Json", "json").Load()
 		if err != nil {
-			log.Panic(err)
+			dialog.ShowError(err, u.w)
+		} else {
+			u.loadJsonConfig(&filename)
 		}
-		u.loadJsonConfig(&filename)
 	}))
 
 	// a config is loaded so show buttons for interacting with the o
@@ -30,8 +30,12 @@ func (u *ui) createToolbar() *fyne.Container {
 			u.configWindow()
 		}))
 		items = append(items, widget.NewButton("Build", func() {
-			u.o.FromBase(filepath.Dir(u.configLocation))
-			dialog.ShowInformation("Success", "Zip file created", u.w)
+			err := u.o.FromBase(filepath.Dir(u.configLocation))
+			if err != nil {
+				dialog.ShowError(err, u.w)
+			} else {
+				dialog.ShowInformation("Success", "Zip file created", u.w)
+			}
 		}))
 		// Spacer so o name is on right
 		items = append(items, layout.NewSpacer())

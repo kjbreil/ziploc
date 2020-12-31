@@ -37,7 +37,7 @@ func (o *Option) WalkInstance(folder string) error {
 		}
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			// log.Printf("adding file: %s\n", p)
-			o.Files[p] = eachFile
+			o.files[p] = eachFile
 		}
 	}
 	return nil
@@ -60,21 +60,21 @@ func (o *Option) fromInstance(root string) {
 	}
 
 	// Create a new DSS for this run
-	o.Dss = dss.New(o.Name, o.Priority)
+	o.dss = dss.New(o.Name, o.Priority)
 	// loop over the paths and add to the DSS
-	for path, info := range o.Files {
+	for path, info := range o.files {
 		// ignore root files
 		if o.Folder(info.Name()) == "ROOT" {
 			continue
 		}
-		err = o.Dss.Add(path)
+		err = o.dss.Add(path)
 		if err != nil {
 			log.Panicf("error adding %s to dss: %v\n", path, err)
 		}
 	}
 
 	// Write the DSS to the temp directory
-	err = o.Dss.Write(filepath.Join(o.TempDir, o.getType(), o.Dss.Name))
+	err = o.dss.Write(filepath.Join(o.TempDir, o.getType(), o.dss.Name))
 	if err != nil {
 		log.Println(err)
 	}

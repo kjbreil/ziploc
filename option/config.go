@@ -30,7 +30,7 @@ func ReadConfig(configLocation *string) (*Option, error) {
 	err = json.Unmarshal(b, &o)
 
 	// make the files map
-	o.Files = make(map[string]os.FileInfo)
+	o.files = make(map[string]os.FileInfo)
 
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {
@@ -59,7 +59,7 @@ func ConfigTemplate(withGit bool) {
 		Name:       "SOME SAMPLE",
 		Priority:   30,
 		BaseFolder: "c:\\storeman\\",
-		Files:      make(map[string]os.FileInfo),
+		files:      make(map[string]os.FileInfo),
 		IsSample:   true,
 		TempDir:    "SOME_SAMPLE",
 		Include:    make(map[string][]string),
