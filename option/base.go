@@ -9,19 +9,21 @@ import (
 	"path/filepath"
 )
 
-func (o *Option) FromBase() {
-	o.DeleteTemp()
+func (o *Option) FromBase(root string) {
+	o.DeleteTemp(root)
+
+	baseWithRoot := filepath.Join(root, o.BaseFolder)
 
 	log.Println("Walking Path", o.BaseFolder)
 	// "walk" the BaseFolder for files, adding them to files if the match
 	// TODO: REGEX for filename matching (optional?)
 
-	info, err := os.Stat(o.BaseFolder)
+	info, err := os.Stat(baseWithRoot)
 	if err != nil || !info.IsDir() {
-		log.Panicf("Panicing")
+		log.Panic(err)
 	}
 
-	err = o.Walk(o.BaseFolder)
+	err = o.Walk(baseWithRoot)
 
 	if err != nil {
 		log.Panic(err)
@@ -42,35 +44,35 @@ func (o *Option) FromBase() {
 	}
 
 	// Write the DSS to the temp directory
-	err = o.Dss.Write(filepath.Join(o.TempDir, o.getType(), o.Dss.Name))
+	err = o.Dss.Write(filepath.Join(root, o.TempDir, o.getType(), o.Dss.Name))
 	if err != nil {
 		log.Println(err)
 	}
 
-	err = o.WriteInstall()
+	err = o.WriteInstall(root)
 	if err != nil {
 		log.Panicf("error writing install file: %v\n", err)
 	}
 
-	err = o.CopyBase()
+	err = o.CopyBase(root)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	err = o.MakeZip()
+	err = o.MakeZip(root)
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func (o *Option) CopyBase() error {
+func (o *Option) CopyBase(root string) error {
 	for ep, ef := range o.Files {
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
 		}
 		folder := ep[len(o.BaseFolder)-1 : len(ep)-len(ef.Name())]
-		dest := o.makePath(folder, ef.Name())
+		dest := o.makePath(root, folder, ef.Name())
 
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
 			err = os.MkdirAll(filepath.Dir(dest), 0777)

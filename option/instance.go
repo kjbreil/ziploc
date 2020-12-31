@@ -43,7 +43,7 @@ func (o *Option) WalkInstance(folder string) error {
 	return nil
 }
 
-func (o *Option) fromInstance() {
+func (o *Option) fromInstance(root string) {
 	log.Println("Walking Path", o.BaseFolder)
 	// "walk" the BaseFolder for files, adding them to files if the match
 	// TODO: REGEX for filename matching (optional?)
@@ -79,17 +79,17 @@ func (o *Option) fromInstance() {
 		log.Println(err)
 	}
 
-	err = o.WriteInstall()
+	err = o.WriteInstall(root)
 	if err != nil {
 		log.Panicf("error writing install file: %v\n", err)
 	}
 
-	err = o.CopyFiles()
+	err = o.CopyFiles(root)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	err = o.MakeZip()
+	err = o.MakeZip(root)
 	if err != nil {
 		log.Panic(err)
 	}

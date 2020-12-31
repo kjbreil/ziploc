@@ -9,13 +9,13 @@ import (
 	"strings"
 )
 
-func (o *Option) MakeZip() error {
+func (o *Option) MakeZip(root string) error {
 
 	name := strings.ReplaceAll(strings.Title(o.Name), " ", "_")
 
 	zipFilename := name + ".zip"
 
-	zipPath := filepath.Join(o.ZipOut, zipFilename)
+	zipPath := filepath.Join(root, o.ZipOut, zipFilename)
 
 	log.Printf("making zip file %s\n", zipPath)
 	zipFile, err := os.Create(zipPath)
@@ -29,7 +29,7 @@ func (o *Option) MakeZip() error {
 	files := make(map[string]os.FileInfo)
 
 	// "walk" the BaseFolder for files
-	err = filepath.Walk(o.TempDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(filepath.Join(root, o.TempDir), func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			files[path] = info
 		}

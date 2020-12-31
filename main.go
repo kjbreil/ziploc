@@ -40,5 +40,5 @@ func main() {
 		}
 	}
 
-	o.FromBase()
+	o.FromBase("/")
 }

@@ -54,12 +54,12 @@ func (o *Option) getType() string {
 }
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
-func (o *Option) makePath(folder string, filename string) string {
-	p := filepath.Join(o.TempDir, o.getType(), o.Dss.Name, folder, filename)
+func (o *Option) makePath(root string, folder string, filename string) string {
+	p := filepath.Join(root, o.TempDir, o.getType(), o.Dss.Name, folder, filename)
 	return p
 }
 
-func (o *Option) CopyFiles() error {
+func (o *Option) CopyFiles(root string) error {
 	for ep, ef := range o.Files {
 		f, err := os.Open(ep)
 		if err != nil {
@@ -75,12 +75,12 @@ func (o *Option) CopyFiles() error {
 
 		switch folder {
 		case "EVERY":
-			dest = o.makePath(dss.Destination(ep), ef.Name())
+			dest = o.makePath(root, dss.Destination(ep), ef.Name())
 		case "ROOT":
-			dest = o.makePath("", ef.Name())
+			dest = o.makePath(root, "", ef.Name())
 		default:
 			newPath := filepath.Join(folder, dss.Destination(ep))
-			dest = o.makePath(newPath, ef.Name())
+			dest = o.makePath(root, newPath, ef.Name())
 		}
 
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
@@ -107,12 +107,12 @@ func (o *Option) CopyFiles() error {
 	return nil
 }
 
-func (o *Option) DeleteTemp() {
+func (o *Option) DeleteTemp(root string) {
 	// stat the tmpdir and delete if there is no error (directory exists)
-	_, err := os.Stat(o.TempDir)
+	_, err := os.Stat(filepath.Join(root, o.TempDir))
 	if err == nil {
 		log.Printf("Removing temp directory: %s\n", o.TempDir)
-		err = os.RemoveAll(o.TempDir)
+		err = os.RemoveAll(filepath.Join(root, o.TempDir))
 		if err != nil {
 			log.Panicln(err)
 		}
