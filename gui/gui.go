@@ -52,3 +52,5 @@ func (u *ui) loadWindow(containers ...fyne.CanvasObject) {
 	containers = append([]fyne.CanvasObject{u.createToolbar()}, containers...)
 	u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), containers...))
 }
+
+// func (u *ui)

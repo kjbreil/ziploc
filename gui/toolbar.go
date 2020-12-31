@@ -4,8 +4,9 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
-	"github.com/sqweek/dialog"
+	sysDiag "github.com/sqweek/dialog"
 	"log"
+	"path/filepath"
 )
 
 func (u *ui) createToolbar() *fyne.Container {
@@ -14,7 +15,7 @@ func (u *ui) createToolbar() *fyne.Container {
 
 	// Open button
 	items = append(items, widget.NewButton("Open", func() {
-		filename, err := dialog.File().Filter("Json", "json").Load()
+		filename, err := sysDiag.File().Filter("Json", "json").Load()
 		if err != nil {
 			log.Panic(err)
 		}
@@ -26,6 +27,10 @@ func (u *ui) createToolbar() *fyne.Container {
 		// open config form button
 		items = append(items, widget.NewButton("Config", func() {
 			u.configWindow()
+		}))
+		items = append(items, widget.NewButton("Build", func() {
+			u.o.FromBase(filepath.Dir(u.configLocation))
+			// dialog.ShowInformation("File Saved", "hello", u.w)
 		}))
 		// Spacer so o name is on right
 		items = append(items, layout.NewSpacer())
