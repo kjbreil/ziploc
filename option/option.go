@@ -25,8 +25,8 @@ type Option struct {
 	TempDir     string              `json:"temp_dir"`
 	ZipOut      string              `json:"zip_out"`
 	// Not Exported
-	Files map[string]os.FileInfo
-	Dss   *dss.DSS
+	files map[string]os.FileInfo
+	dss   *dss.DSS
 }
 
 type Git struct {
@@ -55,12 +55,12 @@ func (o *Option) getType() string {
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
 func (o *Option) makePath(root string, folder string, filename string) string {
-	p := filepath.Join(root, o.TempDir, o.getType(), o.Dss.Name, folder, filename)
+	p := filepath.Join(root, o.TempDir, o.getType(), o.dss.Name, folder, filename)
 	return p
 }
 
 func (o *Option) CopyFiles(root string) error {
-	for ep, ef := range o.Files {
+	for ep, ef := range o.files {
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
