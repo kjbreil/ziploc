@@ -23,13 +23,14 @@ func (u *ui) createToolbar() *fyne.Container {
 
 	// a config is loaded so show buttons for interacting with the option
 	if u.option != nil {
-		// Option Name
-		items = append(items, widget.NewLabel(u.option.Name))
 		// open config form button
 		items = append(items, widget.NewButton("Config", func() {
-			cw := u.configWindow()
-			u.loadWindow(cw)
+			u.configWindow()
 		}))
+		// Spacer so option name is on right
+		items = append(items, layout.NewSpacer())
+		// Option Name
+		items = append(items, widget.NewLabel(u.option.Name))
 	}
 
 	container := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), items...)
