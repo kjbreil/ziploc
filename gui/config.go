@@ -1,4 +1,4 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne"
@@ -9,23 +9,23 @@ import (
 )
 
 func (u *ui) configWindow() {
-	if u.option == nil {
-		log.Panic("config window called without an option loaded")
+	if u.o == nil {
+		log.Panic("config window called without an o loaded")
 	}
 
-	name := &widget.Entry{Text: u.option.Name}
+	name := &widget.Entry{Text: u.o.Name}
 
 	priority := &widget.Entry{
 		DisableableWidget: widget.DisableableWidget{},
-		Text:              strconv.Itoa(u.option.Priority),
+		Text:              strconv.Itoa(u.o.Priority),
 		Validator: func(s string) error {
 			i, err := strconv.Atoi(s)
-			u.option.Priority = i
+			u.o.Priority = i
 			return err
 		},
 	}
 
-	baseFolder := &widget.Entry{Text: u.option.BaseFolder}
+	baseFolder := &widget.Entry{Text: u.o.BaseFolder}
 	f := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "Name", Widget: name},
@@ -33,10 +33,10 @@ func (u *ui) configWindow() {
 			{Text: "Source Folder", Widget: baseFolder},
 		},
 		OnSubmit: func() {
-			u.option.Name = name.Text
-			u.option.BaseFolder = baseFolder.Text
+			u.o.Name = name.Text
+			u.o.BaseFolder = baseFolder.Text
 
-			u.option.WriteConfig(u.configLocation)
+			u.o.WriteConfig(u.configLocation)
 			u.configWindow()
 		},
 		OnCancel: nil,
@@ -52,7 +52,7 @@ func (u *ui) configWindow() {
 
 func (u *ui) showExcludes() *fyne.Container {
 	var excluded []fyne.CanvasObject
-	for _, ee := range u.option.Exclude {
+	for _, ee := range u.o.Exclude {
 		exclude := &widget.Entry{Text: ee}
 		excluded = append(excluded, exclude)
 	}

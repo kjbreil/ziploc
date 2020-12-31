@@ -2,7 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/kjbreil/ziploc"
+	"github.com/kjbreil/ziploc/gui"
+	"github.com/kjbreil/ziploc/option"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,11 +22,17 @@ func main() {
 	flag.Parse()
 
 	if *makeTemplate {
-		ziploc.ConfigTemplate(true)
+		option.ConfigTemplate(true)
 		return
 	}
 
-	o, err := ziploc.ReadConfig(configLocation)
+	// no configuration passed so run GUI
+	if *configLocation == "" {
+		gui.OpenGui()
+		return
+	}
+
+	o, err := option.ReadConfig(configLocation)
 	if err != nil {
 		log.Panic(err)
 	}
