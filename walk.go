@@ -1,4 +1,4 @@
-package main
+package ziploc
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"regexp"
 )
 
-func (o *Option) walk(folder string) error {
+func (o *Option) Walk(folder string) error {
 	if o.excluded(filepath.Base(folder)) {
 		return nil
 	}
@@ -30,14 +30,14 @@ func (o *Option) walk(folder string) error {
 	for _, eachFile := range files {
 		p := filepath.Join(folder, eachFile.Name())
 		if eachFile.IsDir() {
-			err = o.walk(p)
+			err = o.Walk(p)
 			if err != nil {
 				return err
 			}
 		}
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			log.Printf("adding file: %s\n", p)
-			o.files[p] = eachFile
+			o.Files[p] = eachFile
 		}
 	}
 	return nil

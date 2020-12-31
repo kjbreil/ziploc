@@ -49,8 +49,8 @@
         <env name="PATH" value="$GoBinDirs$" />
       </envs>
     </TaskOptions>
-    <TaskOptions isEnabled="false">
-      <option name="arguments" value="run --disable=typecheck $FileDir$" />
+    <TaskOptions isEnabled="true">
+      <option name="arguments" value="run --disable=typecheck --fast $FileDir$" />
       <option name="checkSyntaxErrors" value="true" />
       <option name="description" />
       <option name="exitCodeBehavior" value="ERROR" />

@@ -1,4 +1,4 @@
-package main
+package ziploc
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-func readConfig() (*Option, error) {
+func ReadConfig(configLocation *string) (*Option, error) {
 
 	if *configLocation == "" {
 		return nil, fmt.Errorf("config file not set")
@@ -30,7 +30,7 @@ func readConfig() (*Option, error) {
 	err = json.Unmarshal(b, &o)
 
 	// make the files map
-	o.files = make(map[string]os.FileInfo)
+	o.Files = make(map[string]os.FileInfo)
 
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {
@@ -47,13 +47,13 @@ func readConfig() (*Option, error) {
 	return &o, err
 }
 
-func configTemplate(withGit bool) {
+func ConfigTemplate(withGit bool) {
 	// setup Option information
 	o := Option{
 		Name:       "SOME SAMPLE",
 		Priority:   30,
 		BaseFolder: "c:\\storeman\\",
-		files:      make(map[string]os.FileInfo),
+		Files:      make(map[string]os.FileInfo),
 		Type:       "Samples",
 		TempDir:    "SOME_SAMPLE",
 		Include:    make(map[string][]string),
