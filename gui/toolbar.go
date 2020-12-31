@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fyne.io/fyne"
+	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	sysDiag "github.com/sqweek/dialog"
@@ -30,7 +31,7 @@ func (u *ui) createToolbar() *fyne.Container {
 		}))
 		items = append(items, widget.NewButton("Build", func() {
 			u.o.FromBase(filepath.Dir(u.configLocation))
-			// dialog.ShowInformation("File Saved", "hello", u.w)
+			dialog.ShowInformation("Success", "Zip file created", u.w)
 		}))
 		// Spacer so o name is on right
 		items = append(items, layout.NewSpacer())

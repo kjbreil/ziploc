@@ -2,6 +2,7 @@ package gui
 
 import (
 	"fyne.io/fyne"
+	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
 	"fyne.io/fyne/widget"
 	"log"
@@ -36,16 +37,19 @@ func (u *ui) configWindow() {
 	}
 
 	baseFolder := &widget.Entry{Text: u.o.BaseFolder}
+	outFolder := &widget.Entry{Text: u.o.ZipOut}
 	f := &widget.Form{
 		Items: []*widget.FormItem{
 			{Text: "Name", Widget: name},
 			{Text: "Kind", Widget: kind},
 			{Text: "Priority", Widget: priority},
 			{Text: "Source Folder", Widget: baseFolder},
+			{Text: "Publish Folder", Widget: outFolder},
 		},
 		OnSubmit: func() {
 			u.o.Name = name.Text
 			u.o.BaseFolder = baseFolder.Text
+			u.o.ZipOut = outFolder.Text
 			if kind.Selected == "Sample" {
 				u.o.IsSample = true
 			} else {
@@ -54,6 +58,8 @@ func (u *ui) configWindow() {
 
 			u.o.WriteConfig(u.configLocation)
 			u.configWindow()
+
+			dialog.ShowInformation("Success", "Config file saved", u.w)
 		},
 		OnCancel: nil,
 	}
