@@ -42,7 +42,7 @@ func (o *Option) FromBase() {
 	}
 
 	// Write the DSS to the temp directory
-	err = o.Dss.Write(filepath.Join(o.TempDir, o.Type, o.Dss.Name))
+	err = o.Dss.Write(filepath.Join(o.TempDir, o.getType(), o.Dss.Name))
 	if err != nil {
 		log.Println(err)
 	}

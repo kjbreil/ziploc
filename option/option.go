@@ -17,12 +17,11 @@ type Option struct {
 	Git         *Git                `json:"git,omitempty"`
 	Priority    int                 `json:"priority"`
 	BaseFolder  string              `json:"base_folder"`
-	Include     map[string][]string `json:"include"`
-	Exclude     []string            `json:"exclude"`
-	Type        string              `json:"type"` // Options or Samples
+	Include     map[string][]string `json:"include,omitempty"`
+	Exclude     *[]string           `json:"exclude,omitempty"`
 	IsSample    bool                `json:"is_sample"`
-	Instance    string              `json:"instance"`
-	InstanceDir string              `json:"instance_dir"`
+	Instance    *string             `json:"instance,omitempty"`
+	InstanceDir *string             `json:"instance_dir,omitempty"`
 	TempDir     string              `json:"temp_dir"`
 	ZipOut      string              `json:"zip_out"`
 	// Not Exported
@@ -46,9 +45,17 @@ func (o *Option) safeName() string {
 	return strings.ReplaceAll(strings.Title(o.Name), " ", "_")
 }
 
+func (o *Option) getType() string {
+	t := "Options"
+	if o.IsSample {
+		t = "Samples"
+	}
+	return t
+}
+
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
 func (o *Option) makePath(folder string, filename string) string {
-	p := filepath.Join(o.TempDir, o.Type, o.Dss.Name, folder, filename)
+	p := filepath.Join(o.TempDir, o.getType(), o.Dss.Name, folder, filename)
 	return p
 }
 
