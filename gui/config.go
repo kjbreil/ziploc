@@ -17,8 +17,7 @@ func (u *ui) configWindow() {
 	name := &widget.Entry{Text: u.o.Name}
 
 	priority := &widget.Entry{
-		DisableableWidget: widget.DisableableWidget{},
-		Text:              strconv.Itoa(u.o.Priority),
+		Text: strconv.Itoa(u.o.Priority),
 		Validator: func(s string) error {
 			i, err := strconv.Atoi(s)
 			u.o.Priority = i
@@ -38,18 +37,36 @@ func (u *ui) configWindow() {
 
 	baseFolder := &widget.Entry{Text: u.o.BaseFolder}
 	outFolder := &widget.Entry{Text: u.o.ZipOut}
+
+	items := []*widget.FormItem{
+		{Text: "Name", Widget: name},
+		{Text: "Kind", Widget: kind},
+		{Text: "Priority", Widget: priority},
+		{Text: "Source Folder", Widget: baseFolder},
+		{Text: "Publish Folder", Widget: outFolder},
+	}
+
+	instanceName := &widget.Entry{}
+	if u.o.Instance != nil {
+		instanceName.SetText(*u.o.Instance)
+		items = append(items, &widget.FormItem{Text: "Instance Name", Widget: instanceName})
+	}
+
+	instanceDir := &widget.Entry{}
+	if u.o.InstanceDir != nil {
+		instanceDir.SetText(*u.o.InstanceDir)
+		items = append(items, &widget.FormItem{Text: "Instance Dir", Widget: instanceDir})
+	}
+
 	f := &widget.Form{
-		Items: []*widget.FormItem{
-			{Text: "Name", Widget: name},
-			{Text: "Kind", Widget: kind},
-			{Text: "Priority", Widget: priority},
-			{Text: "Source Folder", Widget: baseFolder},
-			{Text: "Publish Folder", Widget: outFolder},
-		},
+		Items: items,
 		OnSubmit: func() {
 			u.o.Name = name.Text
 			u.o.BaseFolder = baseFolder.Text
 			u.o.ZipOut = outFolder.Text
+			in, id := instanceName.Text, instanceDir.Text
+			u.o.Instance = &in
+			u.o.InstanceDir = &id
 			if kind.Selected == "Sample" {
 				u.o.IsSample = true
 			} else {
@@ -61,7 +78,22 @@ func (u *ui) configWindow() {
 
 			dialog.ShowInformation("Success", "Config file saved", u.w)
 		},
-		OnCancel: nil,
+		SubmitText: "Save",
+		OnCancel: func() {
+			u.o.Name = name.Text
+			u.o.BaseFolder = baseFolder.Text
+			u.o.ZipOut = outFolder.Text
+			in, id := instanceName.Text, instanceDir.Text
+			u.o.Instance = &in
+			u.o.InstanceDir = &id
+			if kind.Selected == "Sample" {
+				u.o.IsSample = true
+			} else {
+				u.o.IsSample = false
+			}
+			dialog.ShowInformation("Success", "Config was set in memory", u.w)
+		},
+		CancelText: "Set",
 	}
 
 	var con []fyne.CanvasObject
@@ -92,11 +124,19 @@ func (u *ui) configWindow() {
 func (u *ui) optionOptions() *fyne.Container {
 	fromInstance := widget.NewCheck("Instance", func(b bool) {
 		if !b {
-			u.o.Exclude = nil
-			u.o.Include = nil
+			dialog.ShowConfirm("Instance Reset", "Are you sure you want to clear instence info", func(b bool) {
+				if b {
+					u.o.Exclude = nil
+					u.o.Include = nil
+					u.o.Instance = nil
+					u.o.InstanceDir = nil
+				}
+			}, u.w)
 		} else {
 			u.o.DefaultExclude()
 			u.o.DefaultInclude()
+			u.o.Instance = new(string)
+			u.o.InstanceDir = new(string)
 		}
 		u.configWindow()
 	})
