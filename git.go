@@ -1,4 +1,4 @@
-package main
+package ziploc
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ func (o *Option) localName() string {
 	return fmt.Sprintf("./%s", o.safeName())
 }
 
-func (o *Option) doGitRepo() error {
+func (o *Option) DoGitRepo() error {
 
 	auth := &http.BasicAuth{
 		Username: o.Git.Username,

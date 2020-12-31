@@ -1,4 +1,4 @@
-package main
+package ziploc
 
 import (
 	"io/ioutil"
@@ -6,8 +6,8 @@ import (
 	"github.com/kjbreil/ziploc/macro"
 )
 
-// writeInstall is a hack for now until a macro module is fleshed out
-func (o *Option) writeInstall() error {
+// WriteInstall is a hack for now until a macro module is fleshed out
+func (o *Option) WriteInstall() error {
 	s := macro.LineS("@FMT(CMP,@WIZGET(INSTALL_STEP)<3,'®FMT(CHR,26)');")
 	s += macro.LineS("@WIZRESET;")
 	s += macro.LineS("@EXEC(SQL=REFRESH_MENU);")

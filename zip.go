@@ -1,4 +1,4 @@
-package main
+package ziploc
 
 import (
 	"archive/zip"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (o *Option) makeZip() error {
+func (o *Option) MakeZip() error {
 
 	name := strings.ReplaceAll(strings.Title(o.Name), " ", "_")
 
