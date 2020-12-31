@@ -4,89 +4,50 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/layout"
-	"fyne.io/fyne/widget"
-	"github.com/sqweek/dialog"
+	"github.com/kjbreil/ziploc"
 	"log"
 )
 
-type ziploc struct {
-	name string
+type ui struct {
+	option *ziploc.Option
 
-	update chan struct{}
+	a fyne.App
+	w fyne.Window
+
+	// toolbar *fyne.Container
 }
 
 func main() {
-	z := new(ziploc)
-	z.update = make(chan struct{})
+	u := new(ui)
+	u.init()
 
-	a := app.New()
-	w := a.NewWindow("Box Layout")
+	u.a = app.New()
+	u.w = u.a.NewWindow("Box Layout")
 
-	container := z.toolbar()
+	// u.toolbar = u.createToolbar()
+	// u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), u.toolbar))
+	u.loadWindow()
+	u.w.Resize(fyne.NewSize(640, 460))
 
-	projectName := widget.NewLabel("XXX")
-
-	// text4 := canvas.NewText("centered", color.White)
-
-	centered := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
-		layout.NewSpacer(), projectName, layout.NewSpacer())
-	w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), container, centered))
-
-	w.Resize(fyne.NewSize(640, 460))
-
-	go func() {
-		// wait for update signal
-		<-z.update
-		projectName.SetText(z.name)
-	}()
-
-	w.ShowAndRun()
+	u.w.ShowAndRun()
 }
 
-func (z *ziploc) toolbar() *fyne.Container {
-	open := widget.NewButton("Open", func() {
-		filename, _ := dialog.File().Filter("Json", "json").Load()
-
-		z.loadJsonConfig(filename)
-		// dialog.
-		//
-		// dialog.ShowFileOpen(func(reader fyne.URIReadCloser, err error) {
-		// 	if err == nil && reader == nil {
-		// 		return
-		// 	}
-		// 	if err != nil {
-		// 		dialog.ShowError(err, win)
-		// 		return
-		// 	}
-		// 	z.loadJsonConfig()
-		// }, win)
-
-		// fd := dialog.NewFileOpen(func(reader fyne.URIReadCloser, err error) {
-		// 	if err == nil && reader == nil {
-		// 		return
-		// 	}
-		// 	if err != nil {
-		// 		dialog.ShowError(err, win)
-		// 		return
-		// 	}
-		// 	z.loadJsonConfig()
-		//
-		// }, win)
-		// fd.SetFilter(storage.NewExtensionFileFilter([]string{".png", ".txt"}))
-		// fd.Resize(fyne.NewSize(640, 460))
-		//
-		// fd.Show()
-
-	})
-	container := fyne.NewContainerWithLayout(layout.NewHBoxLayout(),
-		open)
-
-	return container
+func (u *ui) init() {
 }
 
-func (z *ziploc) loadJsonConfig(filename string) {
-	log.Println(filename)
-	// func (z *ziploc) loadJsonConfig(f fyne.URIReadCloser) {
-	z.name = filename
-	z.update <- struct{}{}
+func (u *ui) loadJsonConfig(filename *string) {
+	var err error
+
+	u.option, err = ziploc.ReadConfig(filename)
+	if err != nil {
+		// TODO: Make this present an error dialog
+		log.Panic(err)
+	}
+	u.loadWindow()
+
+}
+
+func (u *ui) loadWindow(containers ...fyne.CanvasObject) {
+	containers = append([]fyne.CanvasObject{u.createToolbar()}, containers...)
+	u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), containers...))
 }
