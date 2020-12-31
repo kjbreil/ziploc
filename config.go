@@ -38,11 +38,13 @@ func ReadConfig(configLocation *string) (*Option, error) {
 	}
 
 	// create the default excludes
-	o.Exclude = append(o.Exclude, []string{
-		"TEMP",
-		"SAMPLES",
-		"OPTIONS",
-	}...)
+	if len(o.Exclude) == 0 {
+		o.Exclude = append(o.Exclude, []string{
+			"TEMP",
+			"SAMPLES",
+			"OPTIONS",
+		}...)
+	}
 
 	return &o, err
 }
@@ -70,12 +72,15 @@ func ConfigTemplate(withGit bool) {
 		"system.ini",
 		"samples.ini",
 	}
+	o.WriteConfig("./template.json")
+}
 
+func (o *Option) WriteConfig(path string) {
 	b, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
 		log.Panic(err)
 	}
-	err = ioutil.WriteFile("./template.json", b, 0666)
+	err = ioutil.WriteFile(path, b, 0666)
 	if err != nil {
 		log.Panic(err)
 	}

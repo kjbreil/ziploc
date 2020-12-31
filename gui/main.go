@@ -14,6 +14,7 @@ type ui struct {
 	a fyne.App
 	w fyne.Window
 
+	configLocation string
 	// toolbar *fyne.Container
 }
 
@@ -37,6 +38,8 @@ func (u *ui) init() {
 
 func (u *ui) loadJsonConfig(filename *string) {
 	var err error
+
+	u.configLocation = *filename
 
 	u.option, err = ziploc.ReadConfig(filename)
 	if err != nil {
