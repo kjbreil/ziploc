@@ -2,12 +2,46 @@ package option
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/dss"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 )
+
+func (o *Option) FromInstance() error {
+
+	if o.InstanceDir == nil {
+		return fmt.Errorf("instanceDir is missing")
+	}
+	if o.Include == nil {
+		return fmt.Errorf("include is missing")
+	}
+	if o.Exclude == nil {
+		return fmt.Errorf("exclude is missing")
+	}
+
+	log.Println("Walking Path", *o.InstanceDir)
+
+	info, err := os.Stat(*o.InstanceDir)
+	if err != nil {
+		return err
+	}
+	if !info.IsDir() {
+		return fmt.Errorf("instance_dir is a file not a folder")
+	}
+
+	err = o.WalkInstance(*o.InstanceDir)
+	if err != nil {
+		return err
+	}
+
+	err = o.CopyFiles("")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (o *Option) WalkInstance(folder string) error {
 	if o.excluded(filepath.Base(folder)) {
@@ -35,62 +69,11 @@ func (o *Option) WalkInstance(folder string) error {
 				return err
 			}
 		}
+
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
-			// log.Printf("adding file: %s\n", p)
-			o.files[p] = eachFile
+			log.Printf("adding file: %s\n", p)
+			o.instanceFiles[p] = eachFile
 		}
 	}
 	return nil
-}
-
-func (o *Option) fromInstance(root string) {
-	log.Println("Walking Path", o.BaseFolder)
-	// "walk" the BaseFolder for files, adding them to files if the match
-	// TODO: REGEX for filename matching (optional?)
-
-	info, err := os.Stat(o.BaseFolder)
-	if err != nil || !info.IsDir() {
-		log.Panicf("Panicing")
-	}
-
-	err = o.WalkInstance(o.BaseFolder)
-
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// Create a new DSS for this run
-	o.dss = dss.New(o.Name, o.Priority)
-	// loop over the paths and add to the DSS
-	for path, info := range o.files {
-		// ignore root files
-		if o.Folder(info.Name()) == "ROOT" {
-			continue
-		}
-		err = o.dss.Add(path)
-		if err != nil {
-			log.Panicf("error adding %s to dss: %v\n", path, err)
-		}
-	}
-
-	// Write the DSS to the temp directory
-	err = o.dss.Write(filepath.Join(o.TempDir, o.getType(), o.dss.Name))
-	if err != nil {
-		log.Println(err)
-	}
-
-	err = o.WriteInstall(root)
-	if err != nil {
-		log.Panicf("error writing install file: %v\n", err)
-	}
-
-	err = o.CopyFiles(root)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = o.MakeZip(root)
-	if err != nil {
-		log.Panic(err)
-	}
 }

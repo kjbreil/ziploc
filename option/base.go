@@ -32,8 +32,13 @@ func (o *Option) FromBase(root string) error {
 	o.dss = dss.New(o.Name, o.Priority)
 	// loop over the paths and add to the DSS
 	for path, info := range o.files {
+
+		switch {
 		// ignore root files
-		if o.Folder(info.Name()) == "ROOT" {
+		case o.Folder(info.Name()) == "ROOT":
+			continue
+		// ignore unix hidden files
+		case info.Name()[0:1] == ".":
 			continue
 		}
 		err = o.dss.Add(path)
