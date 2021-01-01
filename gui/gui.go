@@ -44,13 +44,21 @@ func (u *ui) loadJsonConfig(filename *string) {
 		// TODO: Make this present an error dialog
 		log.Panic(err)
 	}
-	u.loadWindow()
+	u.configWindow()
 
 }
 
 func (u *ui) loadWindow(containers ...fyne.CanvasObject) {
-	containers = append([]fyne.CanvasObject{u.createToolbar()}, containers...)
-	u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), containers...))
+	var newCont []fyne.CanvasObject
+	newCont = append(newCont, u.createToolbar())
+	if len(containers) == 0 {
+		newCont = append(newCont, layout.NewSpacer())
+	}
+	newCont = append(newCont, containers...)
+	newCont = append(newCont, u.createFooter())
+
+	u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), newCont...))
+
 }
 
 // func (u *ui)

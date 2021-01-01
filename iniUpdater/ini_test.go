@@ -16,5 +16,5 @@ func TestOption_ReadIni(t *testing.T) {
 	b := u.Bytes()
 
 	fmt.Println(string(b))
-	t.Fail()
+	// t.Fail()
 }
