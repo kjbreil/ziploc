@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/kjbreil/ziploc/option"
 	"log"
 )
@@ -50,6 +49,13 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	// if instanceDir is set walk it
+	if o.InstanceDir != nil {
+		err = o.WalkInstance(*o.InstanceDir)
+		if err != nil {
+			log.Panic(err)
+		}
+	}
 
 	// find any INI's and add them to the map
 	err = o.FindINI()
@@ -57,15 +63,13 @@ func main() {
 		log.Panic(err)
 	}
 
-	fmt.Println(o.IniMaps)
-
 	if o.InstanceDir != nil {
 		err = o.FromInstance()
 		if err != nil {
 			log.Panic(err)
 		}
-		// return
 	}
+
 	err = o.FromBase("")
 	if err != nil {
 		log.Panic(err)
