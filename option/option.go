@@ -15,8 +15,8 @@ type Option struct {
 	IsSample bool   `json:"is_sample"`
 
 	Include map[string][]string `json:"include,omitempty"`
-	Exclude *[]string           `json:"exclude,omitempty"`
-	Ignore  *[]string           `json:"ignore,omitempty"`
+	Exclude []string            `json:"exclude,omitempty"`
+	Ignore  []string            `json:"ignore,omitempty"`
 
 	BaseFolder string `json:"base_folder"`
 	TempDir    string `json:"temp_dir"`

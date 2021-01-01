@@ -45,7 +45,7 @@ func ReadConfig(configLocation *string) (*Option, error) {
 }
 
 func (o *Option) DefaultExclude() {
-	o.Exclude = &[]string{
+	o.Exclude = []string{
 		"TEMP",
 		"SAMPLES",
 		"OPTIONS",

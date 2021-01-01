@@ -3,7 +3,9 @@ package gui
 import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/app"
-	"fyne.io/fyne/layout"
+	"fyne.io/fyne/canvas"
+	"fyne.io/fyne/container"
+	"fyne.io/fyne/theme"
 	"github.com/kjbreil/ziploc/option"
 	"log"
 )
@@ -15,7 +17,6 @@ type ui struct {
 	w fyne.Window
 
 	configLocation string
-	// toolbar *fyne.Container
 }
 
 func OpenGui() {
@@ -26,7 +27,7 @@ func OpenGui() {
 	u.w = u.a.NewWindow("Box Layout")
 
 	u.loadWindow()
-	u.w.Resize(fyne.NewSize(640, 460))
+	u.w.Resize(fyne.NewSize(640, 480))
 
 	u.w.ShowAndRun()
 }
@@ -49,16 +50,16 @@ func (u *ui) loadJsonConfig(filename *string) {
 }
 
 func (u *ui) loadWindow(containers ...fyne.CanvasObject) {
-	var newCont []fyne.CanvasObject
-	newCont = append(newCont, u.createToolbar())
-	if len(containers) == 0 {
-		newCont = append(newCont, layout.NewSpacer())
-	}
-	newCont = append(newCont, containers...)
-	newCont = append(newCont, u.createFooter())
 
-	u.w.SetContent(fyne.NewContainerWithLayout(layout.NewVBoxLayout(), newCont...))
+	con := container.NewBorder(u.createToolbar(), u.createFooter(), nil, nil, container.NewMax(containers...))
+	u.w.SetContent(con)
 
+}
+
+func makeCell() fyne.CanvasObject {
+	rect := canvas.NewRectangle(theme.PrimaryColor())
+	rect.SetMinSize(fyne.NewSize(5, 5))
+	return rect
 }
 
 // func (u *ui)
