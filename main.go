@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"github.com/kjbreil/ziploc/gui"
 	"github.com/kjbreil/ziploc/option"
 	"log"
 )
@@ -24,7 +23,7 @@ func main() {
 
 	// no configuration passed so run GUI
 	if *configLocation == "" {
-		gui.OpenGui()
+		// gui.OpenGui()
 		return
 	}
 
@@ -40,5 +39,15 @@ func main() {
 		}
 	}
 
-	o.FromBase("/")
+	if o.InstanceDir != nil {
+		err = o.FromInstance()
+		if err != nil {
+			log.Panic(err)
+		}
+		// return
+	}
+	err = o.FromBase("")
+	if err != nil {
+		log.Panic(err)
+	}
 }

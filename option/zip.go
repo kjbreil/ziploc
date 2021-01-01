@@ -40,6 +40,9 @@ func (o *Option) MakeZip(root string) error {
 	}
 
 	for p, i := range files {
+		if i.Name() == "." {
+			continue
+		}
 		err = addFileToZip(zipWriter, p, i, o.TempDir)
 		if err != nil {
 			return err

@@ -31,6 +31,7 @@ func ReadConfig(configLocation *string) (*Option, error) {
 
 	// make the files map
 	o.files = make(map[string]os.FileInfo)
+	o.instanceFiles = make(map[string]os.FileInfo)
 
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {

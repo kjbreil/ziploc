@@ -19,14 +19,16 @@ type Option struct {
 	BaseFolder  string              `json:"base_folder"`
 	Include     map[string][]string `json:"include,omitempty"`
 	Exclude     *[]string           `json:"exclude,omitempty"`
+	Ignore      *[]string           `json:"ignore,omitempty"`
 	IsSample    bool                `json:"is_sample"`
 	Instance    *string             `json:"instance,omitempty"`
 	InstanceDir *string             `json:"instance_dir,omitempty"`
 	TempDir     string              `json:"temp_dir"`
 	ZipOut      string              `json:"zip_out"`
 	// Not Exported
-	files map[string]os.FileInfo
-	dss   *dss.DSS
+	files         map[string]os.FileInfo
+	instanceFiles map[string]os.FileInfo
+	dss           *dss.DSS
 }
 
 type Git struct {
@@ -59,12 +61,19 @@ func (o *Option) makePath(root string, folder string, filename string) string {
 	return p
 }
 
+func (o *Option) makeBuildPath(root string, folder string, filename string) string {
+	p := filepath.Join(root, o.BaseFolder, folder, filename)
+	return p
+}
+
 func (o *Option) CopyFiles(root string) error {
-	for ep, ef := range o.files {
+	for ep, ef := range o.instanceFiles {
+		log.Println(ep, ef.Name())
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
 		}
+
 		var dest string
 
 		m := regexp.MustCompile(`SP-\d{3}`)
@@ -75,21 +84,22 @@ func (o *Option) CopyFiles(root string) error {
 
 		switch folder {
 		case "EVERY":
-			dest = o.makePath(root, dss.Destination(ep), ef.Name())
+			dest = o.makeBuildPath(root, dss.Destination(ep), ef.Name())
 		case "ROOT":
-			dest = o.makePath(root, "", ef.Name())
+			dest = o.makeBuildPath(root, "", ef.Name())
 		default:
 			newPath := filepath.Join(folder, dss.Destination(ep))
-			dest = o.makePath(root, newPath, ef.Name())
+			dest = o.makeBuildPath(root, newPath, ef.Name())
 		}
 
+		log.Println(dest)
+		//
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
 			err = os.MkdirAll(filepath.Dir(dest), 0777)
 			if err != nil {
 				return fmt.Errorf("could not create directory: %v", err)
 			}
 		}
-
 		out, err := os.Create(dest)
 		if err != nil {
 			return err

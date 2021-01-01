@@ -65,8 +65,7 @@ func (o *Option) check(current string) (bool, string) {
 		}
 	}
 
-	for _, item := range o.Include["EVERY"] {
-
+	for _, item := range o.Include["every"] {
 		reg, err := regexp.Compile("(?i)" + item)
 		if err != nil {
 			log.Panicf("regex could not compile %s: %v", item, err)
