@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/kjbreil/ziploc/option"
 	"log"
 )
@@ -39,6 +40,25 @@ func main() {
 		}
 	}
 
+	// get the files
+	err = o.GetBaseFiles()
+	if err != nil {
+		log.Panic(err)
+	}
+	// make dss object for base files
+	err = o.GetBaseDSS()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// find any INI's and add them to the map
+	err = o.FindINI()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	fmt.Println(o.IniMaps)
+
 	if o.InstanceDir != nil {
 		err = o.FromInstance()
 		if err != nil {
@@ -50,4 +70,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	o.WriteConfig(*configLocation)
+
 }

@@ -17,12 +17,13 @@ import (
 type DSS struct {
 	Name     string
 	SIL      *sil.SIL
+	Data     []Table
 	priority int
 }
 
 func New(name string, priority int) *DSS {
 	// make the sil object
-	s := sil.Make("dss", dssTable{})
+	s := sil.Make("dss", Table{})
 	// change to a LOAD file
 	s.View.Action = "LOAD"
 	// append the
@@ -69,7 +70,7 @@ func (d *DSS) Add(fp string) error {
 		return err
 	}
 
-	d.SIL.View.Data = append(d.SIL.View.Data, dssTable{
+	t := Table{
 		Priority:    d.priority,
 		Author:      "NCBP",
 		Option:      d.Name,
@@ -77,7 +78,10 @@ func (d *DSS) Add(fp string) error {
 		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
 		Signature:   crcloc.Hash(b),
-	})
+	}
+
+	d.Data = append(d.Data, t)
+	d.SIL.View.Data = append(d.SIL.View.Data, t)
 
 	return nil
 }

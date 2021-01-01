@@ -33,6 +33,9 @@ func ReadConfig(configLocation *string) (*Option, error) {
 	o.files = make(map[string]os.FileInfo)
 	o.instanceFiles = make(map[string]os.FileInfo)
 
+	// set the root based on the config
+	o.root = filepath.Dir(*configLocation)
+
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {
 		o.Priority = 30

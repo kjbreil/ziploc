@@ -9,30 +9,25 @@ import (
 	"path/filepath"
 )
 
-func (o *Option) FromBase(root string) error {
-	o.DeleteTemp(root)
-
-	baseWithRoot := filepath.Join(root, o.BaseFolder)
-
-	log.Println("Walking Path", o.BaseFolder)
-	// "walk" the BaseFolder for files, adding them to files if the match
-	// TODO: REGEX for filename matching (optional?)
+func (o *Option) GetBaseFiles() error {
+	baseWithRoot := filepath.Join(o.root, o.BaseFolder)
 
 	info, err := os.Stat(baseWithRoot)
 	if err != nil || !info.IsDir() {
 		return fmt.Errorf("base directory not found %v", err)
 	}
-
 	err = o.Walk(baseWithRoot)
 	if err != nil {
 		return err
 	}
+	return nil
+}
 
+func (o *Option) GetBaseDSS() error {
 	// Create a new DSS for this run
 	o.dss = dss.New(o.Name, o.Priority)
 	// loop over the paths and add to the DSS
 	for path, info := range o.files {
-
 		switch {
 		// ignore root files
 		case o.Folder(info.Name()) == "ROOT":
@@ -41,11 +36,24 @@ func (o *Option) FromBase(root string) error {
 		case info.Name()[0:1] == ".":
 			continue
 		}
-		err = o.dss.Add(path)
+		err := o.dss.Add(path)
 		if err != nil {
 			return fmt.Errorf("error adding %s to dss: %v\n", path, err)
 		}
 	}
+
+	return nil
+}
+
+func (o *Option) FromBase(root string) error {
+	o.DeleteTemp(root)
+	var err error
+
+	log.Println("Walking Path", o.BaseFolder)
+	// "walk" the BaseFolder for files, adding them to files if the match
+	// TODO: REGEX for filename matching (optional?)
+
+	// o.GetBaseFiles()
 
 	// Write the DSS to the temp directory
 	err = o.dss.Write(filepath.Join(root, o.TempDir, o.getType(), o.dss.Name))

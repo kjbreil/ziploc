@@ -2,10 +2,13 @@ package option
 
 import (
 	"fmt"
+	"github.com/kjbreil/ziploc/dss"
+	"github.com/kjbreil/ziploc/macro"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 )
 
 func (o *Option) FromInstance() error {
@@ -35,7 +38,7 @@ func (o *Option) FromInstance() error {
 		return err
 	}
 
-	err = o.CopyFiles("")
+	err = o.CopyFilesFromInstance("")
 	if err != nil {
 		return err
 	}
@@ -74,6 +77,55 @@ func (o *Option) WalkInstance(folder string) error {
 			log.Printf("adding file: %s\n", p)
 			o.instanceFiles[p] = eachFile
 		}
+	}
+	return nil
+}
+
+func (o *Option) CopyFilesFromInstance(root string) error {
+	for ep, ef := range o.instanceFiles {
+		log.Println(ep, ef.Name())
+		f, err := os.Open(ep)
+		if err != nil {
+			return err
+		}
+
+		var dest string
+
+		m := regexp.MustCompile(`SP-\d{3}`)
+		folder := m.FindString(ep)
+		if folder == "" {
+			folder = o.Folder(ef.Name())
+		}
+
+		switch folder {
+		case "EVERY":
+			dest = o.makeBuildPath(root, dss.Destination(ep), ef.Name())
+		case "ROOT":
+			dest = o.makeBuildPath(root, "", ef.Name())
+		default:
+			newPath := filepath.Join(folder, dss.Destination(ep))
+			dest = o.makeBuildPath(root, newPath, ef.Name())
+		}
+
+		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
+			err = os.MkdirAll(filepath.Dir(dest), 0777)
+			if err != nil {
+				return fmt.Errorf("could not create directory: %v", err)
+			}
+		}
+		out, err := os.Create(dest)
+		if err != nil {
+			return err
+		}
+
+		err = macro.Correct(out, f)
+		if err != nil {
+			log.Println(dest)
+			return err
+		}
+
+		_ = f.Close()
+		_ = out.Close()
 	}
 	return nil
 }
