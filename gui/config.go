@@ -1,12 +1,13 @@
 package gui
 
 import (
+	"fmt"
 	"fyne.io/fyne"
-	"fyne.io/fyne/dialog"
+	"fyne.io/fyne/container"
 	"fyne.io/fyne/layout"
+	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 	"log"
-	"strconv"
 )
 
 func (u *ui) configWindow() {
@@ -14,159 +15,199 @@ func (u *ui) configWindow() {
 		log.Panic("config window called without an o loaded")
 	}
 
-	name := &widget.Entry{Text: u.o.Name}
-
-	priority := &widget.Entry{
-		Text: strconv.Itoa(u.o.Priority),
-		Validator: func(s string) error {
-			i, err := strconv.Atoi(s)
-			u.o.Priority = i
-			return err
-		},
-	}
-
-	t := "Option"
-	if u.o.IsSample {
-		t = "Sample"
-	}
-	kind := &widget.Select{
-		DisableableWidget: widget.DisableableWidget{},
-		Selected:          t,
-		Options:           []string{"Option", "Sample"},
-	}
-
-	baseFolder := &widget.Entry{Text: u.o.BaseFolder}
-	outFolder := &widget.Entry{Text: u.o.ZipOut}
-
-	items := []*widget.FormItem{
-		{Text: "Name", Widget: name},
-		{Text: "Kind", Widget: kind},
-		{Text: "Priority", Widget: priority},
-		{Text: "Source Folder", Widget: baseFolder},
-		{Text: "Publish Folder", Widget: outFolder},
-	}
-
-	instanceName := &widget.Entry{}
-	if u.o.Instance != nil {
-		instanceName.SetText(*u.o.Instance)
-		items = append(items, &widget.FormItem{Text: "Instance Name", Widget: instanceName})
-	}
-
-	instanceDir := &widget.Entry{}
-	if u.o.InstanceDir != nil {
-		instanceDir.SetText(*u.o.InstanceDir)
-		items = append(items, &widget.FormItem{Text: "Instance Dir", Widget: instanceDir})
-	}
-
-	f := &widget.Form{
-		Items: items,
-		OnSubmit: func() {
-			u.o.Name = name.Text
-			u.o.BaseFolder = baseFolder.Text
-			u.o.ZipOut = outFolder.Text
-			in, id := instanceName.Text, instanceDir.Text
-			u.o.Instance = &in
-			u.o.InstanceDir = &id
-			if kind.Selected == "Sample" {
-				u.o.IsSample = true
-			} else {
-				u.o.IsSample = false
-			}
-
-			u.o.WriteConfig(u.configLocation)
-			u.configWindow()
-
-			dialog.ShowInformation("Success", "Config file saved", u.w)
-		},
-		SubmitText: "Save",
-		OnCancel: func() {
-			u.o.Name = name.Text
-			u.o.BaseFolder = baseFolder.Text
-			u.o.ZipOut = outFolder.Text
-			in, id := instanceName.Text, instanceDir.Text
-			u.o.Instance = &in
-			u.o.InstanceDir = &id
-			if kind.Selected == "Sample" {
-				u.o.IsSample = true
-			} else {
-				u.o.IsSample = false
-			}
-			dialog.ShowInformation("Success", "Config was set in memory", u.w)
-		},
-		CancelText: "Set",
-	}
-
-	var con []fyne.CanvasObject
-
-	con = append(con, f)
-	var accItems []*widget.AccordionItem
-	if u.o.Exclude != nil {
-		accItems = append(accItems, widget.NewAccordionItem("Excludes", u.showExcludes()))
-	}
-
-	if u.o.Include != nil {
-		accItems = append(accItems, widget.NewAccordionItem("Includes", u.showIncludes()))
-	}
-
-	if len(accItems) > 0 {
-		acc := widget.NewAccordion(accItems...)
-		con = append(con, acc)
-	}
-
-	who := fyne.NewContainerWithLayout(layout.NewVBoxLayout(),
-		u.optionOptions(),
-		fyne.NewContainerWithLayout(layout.NewHBoxLayout(), con...),
+	who := container.NewAppTabs(
+		container.NewTabItem("Main", u.mainTab()),
+		container.NewTabItem("Instance", u.instanceTab()),
 	)
 
 	u.loadWindow(who)
+
 }
 
-func (u *ui) optionOptions() *fyne.Container {
-	fromInstance := widget.NewCheck("Instance", func(b bool) {
-		if !b {
-			dialog.ShowConfirm("Instance Reset", "Are you sure you want to clear instence info", func(b bool) {
-				if b {
-					u.o.Exclude = nil
-					u.o.Include = nil
-					u.o.Instance = nil
-					u.o.InstanceDir = nil
-				}
-			}, u.w)
-		} else {
-			u.o.DefaultExclude()
-			u.o.DefaultInclude()
-			u.o.Instance = new(string)
-			u.o.InstanceDir = new(string)
-		}
-		u.configWindow()
+func (u *ui) initInstance() {
+	if u.o.Instance != nil {
+		u.o.Instance = new(string)
+	}
+	if u.o.InstanceDir != nil {
+		u.o.Instance = new(string)
+	}
+	if u.o.Exclude != nil {
+		u.o.DefaultExclude()
+	}
+	if u.o.Include != nil {
+		u.o.DefaultInclude()
+	}
+}
+
+func (u *ui) instanceTab() fyne.CanvasObject {
+
+	var items []*widget.FormItem
+	u.initInstance()
+
+	// TODO: Should be a dropdown
+	items = append(items, &widget.FormItem{
+		Text: "Instance",
+		Widget: &widget.Entry{
+			Text: *u.o.Instance,
+		},
 	})
-	fromInstance.Checked = u.o.Exclude != nil
-	return fyne.NewContainerWithLayout(layout.NewHBoxLayout(), fromInstance)
-}
+	// TODO: Should be file picker
+	items = append(items, &widget.FormItem{
+		Text: "InstanceDir",
+		Widget: &widget.Entry{
+			Text: *u.o.InstanceDir,
+		},
+	})
+	// items = append(items, &widget.FormItem{
+	// 	Text:   "InstanceDir",
+	// 	Widget: u.showExcludes(),
+	// })
 
-func (u *ui) showExcludes() *fyne.Container {
-	var excluded []fyne.CanvasObject
-	for _, ee := range *u.o.Exclude {
-		exclude := &widget.Entry{Text: ee}
-		excluded = append(excluded, exclude)
-	}
-	return fyne.NewContainerWithLayout(layout.NewVBoxLayout(), excluded...)
-}
-func (u *ui) showIncludes() *fyne.Container {
-	var included []*widget.AccordionItem
-	for section, eis := range u.o.Include {
-		var sectionItems []fyne.CanvasObject
-		for _, ei := range eis {
-			include := &widget.Entry{Text: ei}
-			sectionItems = append(sectionItems, include)
-		}
-
-		con := fyne.NewContainerWithLayout(layout.NewVBoxLayout(), sectionItems...)
-
-		included = append(included, widget.NewAccordionItem(section, con))
+	f := &widget.Form{
+		BaseWidget: widget.BaseWidget{},
+		Items:      items,
+		OnSubmit:   nil,
+		OnCancel:   nil,
+		SubmitText: "",
+		CancelText: "",
 	}
 
-	acc := widget.NewAccordion(included...)
+	ExcInc := container.NewAppTabs(
+		container.NewTabItem("Includes", u.showIncludes()),
+		container.NewTabItem("Excludes", u.showExcludes()),
+	)
 
-	return fyne.NewContainerWithLayout(layout.NewVBoxLayout(), acc)
+	return container.NewBorder(f, nil, nil, nil, ExcInc)
+}
+
+func (u *ui) showExcludes() fyne.CanvasObject {
+	icon := widget.NewIcon(nil)
+	label := widget.NewLabel("Select An Item From The List")
+	hbox := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), icon, label)
+
+	list := widget.NewList(func() int {
+		return len(u.o.Exclude)
+	}, func() fyne.CanvasObject {
+		return widget.NewLabel("Text")
+	}, func(id widget.ListItemID, item fyne.CanvasObject) {
+		item.(*widget.Label).SetText(u.o.Exclude[id])
+	})
+	list.OnSelected = func(id widget.ListItemID) {
+		label.SetText(u.o.Exclude[id])
+		icon.SetResource(theme.DocumentIcon())
+	}
+	list.OnUnselected = func(id widget.ListItemID) {
+		label.SetText("Select An Item From The List")
+		icon.SetResource(nil)
+	}
+
+	s := container.NewHSplit(list, hbox)
+	s.SetOffset(0.3)
+	return s
+}
+
+func (u *ui) showIncludeSection(name string) fyne.CanvasObject {
+
+	list := widget.NewList(func() int {
+		log.Println(len(u.o.Include[name]))
+		return len(u.o.Include[name])
+	}, func() fyne.CanvasObject {
+
+		return widget.NewLabel("Text")
+	}, func(id widget.ListItemID, item fyne.CanvasObject) {
+		fmt.Println(u.o.Include[name][id])
+		item.(*widget.Label).SetText(u.o.Include[name][id])
+	})
+	// list.OnSelected = func(id widget.ListItemID) {
+	// 	label.SetText(u.o.Exclude[id])
+	// }
+	// list.OnUnselected = func(id widget.ListItemID) {
+	// 	label.SetText("Select An Item From The List")
+	// }
+	//
+	// s := container.NewHSplit(list, hbox)
+	// s.SetOffset(0.3)
+	return container.NewMax(list)
+}
+func (u *ui) showIncludes() fyne.CanvasObject {
+	urLabel := widget.NewLabel("Select An Item From Exclude Section")
+	lrLabel := widget.NewLabel("Select An Item From The List")
+	ur := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), urLabel)
+	lr := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), lrLabel)
+
+	var sections []string
+	for k := range u.o.Include {
+		sections = append(sections, k)
+	}
+
+	list := widget.NewList(func() int {
+		return len(sections)
+	}, func() fyne.CanvasObject {
+
+		return widget.NewLabel("Text")
+	}, func(id widget.ListItemID, item fyne.CanvasObject) {
+		item.(*widget.Label).SetText(sections[id])
+	})
+	list.OnSelected = func(id widget.ListItemID) {
+		// ur.Objects = []fyne.CanvasObject{u.showIncludeSection(sections[id], ur, lrLabel)}
+		// ur.Refresh()
+		ur.Objects = []fyne.CanvasObject{u.showIncludeSection(sections[id])}
+		ur.Refresh()
+		lrLabel.SetText(sections[id])
+	}
+	list.OnUnselected = func(id widget.ListItemID) {
+		urLabel.SetText("Done")
+		lrLabel.SetText("Done")
+	}
+	//
+	// var included []*widget.AccordionItem
+	// for section, eis := range u.o.Include {
+	// 	var sectionItems []fyne.CanvasObject
+	// 	for _, ei := range eis {
+	// 		include := &widget.Entry{Text: ei}
+	// 		sectionItems = append(sectionItems, include)
+	// 	}
+	// 	// con := fyne.NewContainerWithLayout(layout.NewVBoxLayout(), sectionItems...)
+	// 	included = append(included, widget.NewAccordionItem(section, u.showIncludeSection(section, hbox, label, icon)))
+	// }
+	//
+	// acc := widget.NewAccordion(included...)
+
+	s := container.NewHSplit(list, container.NewVSplit(ur, lr))
+	s.SetOffset(0.3)
+
+	return s
+}
+
+func makeListTab() fyne.CanvasObject {
+	var data []string
+	for i := 0; i < 1000; i++ {
+		data = append(data, fmt.Sprintf("Test Item %d", i))
+	}
+
+	icon := widget.NewIcon(nil)
+	label := widget.NewLabel("Select An Item From The List")
+	hbox := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), icon, label)
+
+	list := widget.NewList(
+		func() int {
+			return len(data)
+		},
+		func() fyne.CanvasObject {
+			return fyne.NewContainerWithLayout(layout.NewHBoxLayout(), widget.NewIcon(theme.DocumentIcon()), widget.NewLabel("Template Object"))
+		},
+		func(id widget.ListItemID, item fyne.CanvasObject) {
+			item.(*fyne.Container).Objects[1].(*widget.Label).SetText(data[id])
+		},
+	)
+	list.OnSelected = func(id widget.ListItemID) {
+		label.SetText(data[id])
+		icon.SetResource(theme.DocumentIcon())
+	}
+	list.OnUnselected = func(id widget.ListItemID) {
+		label.SetText("Select An Item From The List")
+		icon.SetResource(nil)
+	}
+	list.Select(125)
+	return container.NewHBox(list, fyne.NewContainerWithLayout(layout.NewCenterLayout(), hbox))
 }
