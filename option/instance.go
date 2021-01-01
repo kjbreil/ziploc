@@ -13,6 +13,15 @@ import (
 
 func (o *Option) FromInstance() error {
 
+	err := o.CopyFilesFromInstance("")
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *Option) WalkInstance(folder string) error {
 	if o.InstanceDir == nil {
 		return fmt.Errorf("instanceDir is missing")
 	}
@@ -23,8 +32,6 @@ func (o *Option) FromInstance() error {
 		return fmt.Errorf("exclude is missing")
 	}
 
-	log.Println("Walking Path", *o.InstanceDir)
-
 	info, err := os.Stat(*o.InstanceDir)
 	if err != nil {
 		return err
@@ -33,20 +40,6 @@ func (o *Option) FromInstance() error {
 		return fmt.Errorf("instance_dir is a file not a folder")
 	}
 
-	err = o.WalkInstance(*o.InstanceDir)
-	if err != nil {
-		return err
-	}
-
-	err = o.CopyFilesFromInstance("")
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *Option) WalkInstance(folder string) error {
 	if o.excluded(filepath.Base(folder)) {
 		return nil
 	}
