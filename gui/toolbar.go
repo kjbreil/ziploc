@@ -4,9 +4,9 @@ import (
 	"fyne.io/fyne"
 	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/layout"
+	"fyne.io/fyne/theme"
 	"fyne.io/fyne/widget"
 	sysDiag "github.com/sqweek/dialog"
-	"path/filepath"
 )
 
 func (u *ui) createToolbar() *fyne.Container {
@@ -14,36 +14,38 @@ func (u *ui) createToolbar() *fyne.Container {
 	var items []fyne.CanvasObject
 
 	// Open button
-	items = append(items, widget.NewButton("Open", func() {
-		filename, err := sysDiag.File().Filter("Json", "json").Load()
-		if err != nil {
-			dialog.ShowError(err, u.w)
-		} else {
-			u.loadJsonConfig(&filename)
-		}
-	}))
+	items = append(items, &widget.Button{
+		DisableableWidget: widget.DisableableWidget{},
+		Text:              "Open",
+		Icon:              theme.FileIcon(),
+		Importance:        widget.MediumImportance,
+		OnTapped: func() {
+			filename, err := sysDiag.File().Filter("Json", "json").Load()
+			if err != nil {
+				dialog.ShowError(err, u.w)
+			} else {
+				u.loadJsonConfig(&filename)
+			}
+		},
+	})
 
 	// a config is loaded so show buttons for interacting with the o
 	if u.o != nil {
 		// open config form button
-		items = append(items, widget.NewButton("Config", func() {
-			u.configWindow()
-		}))
-		items = append(items, widget.NewButton("Build", func() {
-			err := u.o.FromBase(filepath.Dir(u.configLocation))
-			if err != nil {
-				dialog.ShowError(err, u.w)
-			} else {
-				dialog.ShowInformation("Success", "Zip file created", u.w)
-			}
-		}))
-		// Spacer so o name is on right
+		items = append(items, &widget.Button{
+			DisableableWidget: widget.DisableableWidget{},
+			Text:              "Config",
+			Icon:              theme.SettingsIcon(),
+			Importance:        widget.LowImportance,
+			OnTapped: func() {
+				u.configWindow()
+			},
+		})
+		// Spacer so option name is on right
 		items = append(items, layout.NewSpacer())
 		// Option Name
 		items = append(items, widget.NewLabel(u.o.Name))
 	}
 
-	container := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), items...)
-
-	return container
+	return fyne.NewContainerWithLayout(layout.NewHBoxLayout(), items...)
 }
