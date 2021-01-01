@@ -1,7 +1,7 @@
 package dss
 
-// dssTable tells LOC about the files being installed and hashes for the files
-type dssTable struct {
+// DssTable tells LOC about the files being installed and hashes for the files
+type Table struct {
 	Priority       int    `sil:"F2727" default:"30"` // Priority level of install, used for layering, usually should be 30
 	Author         string `sil:"F2728" default:"KYGL"`
 	Option         string `sil:"F2729"` // name of the option

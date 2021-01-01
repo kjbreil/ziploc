@@ -1,31 +1,36 @@
 package option
 
 import (
-	"fmt"
 	"github.com/kjbreil/ziploc/dss"
-	"github.com/kjbreil/ziploc/macro"
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 )
 
 // Option is a LOC option type
 type Option struct {
-	Name        string              `json:"name"`
-	Git         *Git                `json:"git,omitempty"`
-	Priority    int                 `json:"priority"`
-	BaseFolder  string              `json:"base_folder"`
-	Include     map[string][]string `json:"include,omitempty"`
-	Exclude     *[]string           `json:"exclude,omitempty"`
-	Ignore      *[]string           `json:"ignore,omitempty"`
-	IsSample    bool                `json:"is_sample"`
-	Instance    *string             `json:"instance,omitempty"`
-	InstanceDir *string             `json:"instance_dir,omitempty"`
-	TempDir     string              `json:"temp_dir"`
-	ZipOut      string              `json:"zip_out"`
+	Name     string `json:"name"`
+	Priority int    `json:"priority"`
+	IsSample bool   `json:"is_sample"`
+
+	Include map[string][]string `json:"include,omitempty"`
+	Exclude *[]string           `json:"exclude,omitempty"`
+	Ignore  *[]string           `json:"ignore,omitempty"`
+
+	BaseFolder string `json:"base_folder"`
+	TempDir    string `json:"temp_dir"`
+	ZipOut     string `json:"zip_out"`
+
+	Instance    *string `json:"instance,omitempty"`
+	InstanceDir *string `json:"instance_dir,omitempty"`
+
+	Git *Git `json:"git,omitempty"`
+
+	IniMaps map[string]IniMap `json:"ini_maps,omitempty"`
+
 	// Not Exported
+	root          string
 	files         map[string]os.FileInfo
 	instanceFiles map[string]os.FileInfo
 	dss           *dss.DSS
@@ -64,57 +69,6 @@ func (o *Option) makePath(root string, folder string, filename string) string {
 func (o *Option) makeBuildPath(root string, folder string, filename string) string {
 	p := filepath.Join(root, o.BaseFolder, folder, filename)
 	return p
-}
-
-func (o *Option) CopyFiles(root string) error {
-	for ep, ef := range o.instanceFiles {
-		log.Println(ep, ef.Name())
-		f, err := os.Open(ep)
-		if err != nil {
-			return err
-		}
-
-		var dest string
-
-		m := regexp.MustCompile(`SP-\d{3}`)
-		folder := m.FindString(ep)
-		if folder == "" {
-			folder = o.Folder(ef.Name())
-		}
-
-		switch folder {
-		case "EVERY":
-			dest = o.makeBuildPath(root, dss.Destination(ep), ef.Name())
-		case "ROOT":
-			dest = o.makeBuildPath(root, "", ef.Name())
-		default:
-			newPath := filepath.Join(folder, dss.Destination(ep))
-			dest = o.makeBuildPath(root, newPath, ef.Name())
-		}
-
-		log.Println(dest)
-		//
-		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
-			err = os.MkdirAll(filepath.Dir(dest), 0777)
-			if err != nil {
-				return fmt.Errorf("could not create directory: %v", err)
-			}
-		}
-		out, err := os.Create(dest)
-		if err != nil {
-			return err
-		}
-
-		err = macro.Correct(out, f)
-		if err != nil {
-			log.Println(dest)
-			return err
-		}
-
-		_ = f.Close()
-		_ = out.Close()
-	}
-	return nil
 }
 
 func (o *Option) DeleteTemp(root string) {
