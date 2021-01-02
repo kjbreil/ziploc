@@ -15,16 +15,47 @@ func (u *ui) createFooter() *fyne.Container {
 
 	// a config is loaded so show buttons for interacting with the option
 	if u.o != nil {
-
+		if u.o.InstanceDir != nil {
+			items = append(items, &widget.Button{
+				DisableableWidget: widget.DisableableWidget{},
+				Text:              "From Instance",
+				Icon:              theme.DocumentSaveIcon(),
+				Importance:        widget.MediumImportance,
+				OnTapped: func() {
+					// get the files
+					err := u.o.WalkInstance(*u.o.InstanceDir)
+					if err != nil {
+						dialog.ShowError(err, u.w)
+						return
+					}
+					err = u.o.FromInstance()
+					if err != nil {
+						dialog.ShowError(err, u.w)
+					} else {
+						dialog.ShowInformation("Success", "Zip file created", u.w)
+					}
+				},
+			})
+		}
 		items = append(items, &widget.Button{
 			DisableableWidget: widget.DisableableWidget{},
 			Text:              "Build Zip",
 			Icon:              theme.DocumentSaveIcon(),
 			Importance:        widget.HighImportance,
-			Alignment:         0,
-			IconPlacement:     0,
 			OnTapped: func() {
-				err := u.o.FromBase(filepath.Dir(u.configLocation))
+				// get the files
+				err := u.o.GetBaseFiles()
+				if err != nil {
+					dialog.ShowError(err, u.w)
+					return
+				}
+				// make dss object for base files
+				err = u.o.GetBaseDSS()
+				if err != nil {
+					dialog.ShowError(err, u.w)
+					return
+				}
+				err = u.o.FromBase(filepath.Dir(u.configLocation))
 				if err != nil {
 					dialog.ShowError(err, u.w)
 				} else {

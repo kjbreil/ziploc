@@ -75,7 +75,7 @@ func (o *Option) DeleteTemp(root string) {
 	// stat the tmpdir and delete if there is no error (directory exists)
 	_, err := os.Stat(filepath.Join(root, o.TempDir))
 	if err == nil {
-		log.Printf("Removing temp directory: %s\n", o.TempDir)
+		log.Printf("Removing temp directory: %s\n", filepath.Join(root, o.TempDir))
 		err = os.RemoveAll(filepath.Join(root, o.TempDir))
 		if err != nil {
 			log.Panicln(err)

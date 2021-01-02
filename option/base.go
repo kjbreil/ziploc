@@ -80,12 +80,14 @@ func (o *Option) FromBase(root string) error {
 }
 
 func (o *Option) CopyBase(root string) error {
+	log.Println("-->", root)
+	b := filepath.Join(root, o.BaseFolder)
 	for ep, ef := range o.files {
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
 		}
-		folder := ep[len(o.BaseFolder)-1 : len(ep)-len(ef.Name())]
+		folder := ep[len(b) : len(ep)-len(ef.Name())]
 		dest := o.makePath(root, folder, ef.Name())
 
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
@@ -102,7 +104,6 @@ func (o *Option) CopyBase(root string) error {
 
 		err = macro.Correct(out, f)
 		if err != nil {
-			log.Println(dest)
 			return err
 		}
 
