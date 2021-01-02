@@ -5,9 +5,9 @@ import (
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/canvas"
 	"fyne.io/fyne/container"
+	"fyne.io/fyne/dialog"
 	"fyne.io/fyne/theme"
 	"github.com/kjbreil/ziploc/option"
-	"log"
 )
 
 type ui struct {
@@ -43,8 +43,9 @@ func (u *ui) loadJsonConfig(filename *string) {
 	u.o, err = option.ReadConfig(filename)
 	if err != nil {
 		// TODO: Make this present an error dialog
-		log.Panic(err)
+		dialog.ShowError(err, u.w)
 	}
+
 	u.configWindow()
 
 }

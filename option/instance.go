@@ -11,16 +11,6 @@ import (
 	"regexp"
 )
 
-func (o *Option) FromInstance() error {
-
-	err := o.CopyFilesFromInstance("")
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (o *Option) WalkInstance(folder string) error {
 	if o.InstanceDir == nil {
 		return fmt.Errorf("instanceDir is missing")
@@ -65,18 +55,18 @@ func (o *Option) WalkInstance(folder string) error {
 				return err
 			}
 		}
-
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			log.Printf("adding file: %s\n", p)
 			o.instanceFiles[p] = eachFile
 		}
 	}
+
 	return nil
 }
 
-func (o *Option) CopyFilesFromInstance(root string) error {
+func (o *Option) FromInstance() error {
+	root := o.root
 	for ep, ef := range o.instanceFiles {
-		log.Println(ep, ef.Name())
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
@@ -113,7 +103,6 @@ func (o *Option) CopyFilesFromInstance(root string) error {
 
 		err = macro.Correct(out, f)
 		if err != nil {
-			log.Println(dest)
 			return err
 		}
 
