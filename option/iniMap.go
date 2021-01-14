@@ -2,7 +2,6 @@ package option
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 	"strings"
 )
@@ -15,7 +14,6 @@ type IniMap struct {
 }
 
 func (o *Option) FindINI() error {
-	log.Println("finding ini's")
 	if o.dss == nil {
 		return fmt.Errorf("dss has not been generated yet")
 	}

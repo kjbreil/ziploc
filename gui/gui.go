@@ -24,7 +24,7 @@ func OpenGui() {
 	u.init()
 
 	u.a = app.New()
-	u.w = u.a.NewWindow("Box Layout")
+	u.w = u.a.NewWindow("ZipLoc")
 
 	u.loadWindow()
 	u.w.Resize(fyne.NewSize(640, 480))
