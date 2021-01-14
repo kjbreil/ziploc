@@ -2,6 +2,7 @@ package option
 
 import (
 	"fmt"
+	"log"
 	"path/filepath"
 	"strings"
 )
@@ -14,12 +15,13 @@ type IniMap struct {
 }
 
 func (o *Option) FindINI() error {
+	log.Println("finding ini's")
 	if o.dss == nil {
 		return fmt.Errorf("dss has not been generated yet")
 	}
 
 	for p, f := range o.files {
-		if filepath.Ext(p) == ".ini" {
+		if strings.EqualFold(filepath.Ext(p), ".INI") {
 			if o.IniMaps == nil {
 				o.IniMaps = make(map[string]IniMap)
 			}
