@@ -3,6 +3,7 @@ package option
 import (
 	"fmt"
 	"github.com/kjbreil/ziploc/dss"
+	"github.com/kjbreil/ziploc/iniUpdater"
 	"github.com/kjbreil/ziploc/macro"
 	"log"
 	"os"
@@ -83,12 +84,27 @@ func (o *Option) CopyBase(root string) error {
 	log.Println("-->", root)
 	b := filepath.Join(root, o.BaseFolder)
 	for ep, ef := range o.files {
+		var force bool // to force correction, only when its an ini for now
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
 		}
 		folder := ep[len(b) : len(ep)-len(ef.Name())]
 		dest := o.makePath(root, folder, ef.Name())
+
+		// is the file a part of the ini map, maybe do something then
+		noExt := ef.Name()[:len(ef.Name())-len(filepath.Ext(ef.Name()))]
+		ini, ok := o.IniMaps[noExt]
+		if ok {
+			if ini.Original != nil {
+				f, err = iniUpdater.File(*ini.Original, *ini.Base, folder)
+				if err != nil {
+					return err
+				}
+				dest = o.makePath(root, "INBOX", noExt+"_INI.SQL")
+				force = true
+			}
+		}
 
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
 			err = os.MkdirAll(filepath.Dir(dest), 0777)
@@ -102,7 +118,7 @@ func (o *Option) CopyBase(root string) error {
 			return err
 		}
 
-		err = macro.Correct(out, f)
+		err = macro.Correct(out, f, force)
 		if err != nil {
 			return err
 		}

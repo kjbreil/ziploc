@@ -33,38 +33,28 @@ import (
 // }
 
 func TestCRLF(t *testing.T) {
-	// test := fmt.Sprintf("testing\nnewline\ncrlf\r\ntext")
-	// CRLF([]byte(test))
+	// [35 147 172 63 202 166 188 222 204 205 10]
+	// b := []byte("BEFORE #“¬�Ê¦¼ÞÌÍ AFTER")
+	//
+	// nb, err := CRLF(b)
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// t.Log(string(b))
+	// t.Log(string(nb))
+	//
+	// t.Fail()
 
 	fn := "./crlftest.txt"
-
-	// fi, err := os.Stat(fn)
-	// if err != nil {
-	// 	t.Fatalf("crlftest file does not exist")
-	// }
 
 	f, err := os.Open(fn)
 	if err != nil {
 		t.Fatalf("crlftest file could not be opened")
 	}
-	//
-	// fi, _ := f.Stat()
-	//
-	// b := make([]byte, fi.Size())
-	//
-	// _, _ = f.Read(b)
-	//
-	// b, _ = CRLF(b)
-	//
-	// o, err := os.Create("./corrected.txt")
-	//
-	// _, _ = o.Write(b)
-	//
-	// _, _ = io.Copy(o, f)
 
 	o, err := os.Create("./corrected.txt")
 
-	err = Correct(o, f)
+	err = Correct(o, f, false)
 	if err != nil {
 		t.Fatal(err)
 	}

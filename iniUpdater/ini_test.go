@@ -6,15 +6,31 @@ import (
 )
 
 func TestOption_ReadIni(t *testing.T) {
-	// /Users/kjell/working/SMSLane/Options/Application_SMSPro/FirstLoad/Office
-	// u, err := CompareTwo("/Users/kjell/working/SMSLane/Office/Setting.ini", "../../ncbp_lab/lane/OFFICE/Setting.ini")
-	u, err := CompareTwo("/Users/kjell/working/SMSLane/Options/Application_SMSPro/FirstLoad/Office/System.ini", "/Users/kjell/working/SMSLane/Office/System.ini")
+	u, err := CompareTwo("APIDATACAP_ORI.INI", "APIDATACAP_CUS.INI", "XCHDEV")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	b := u.Bytes()
-
 	fmt.Println(string(b))
-	// t.Fail()
+
+	// f, err := File("APIDATACAP_ORI.INI", "APIDATACAP_CUS.INI", "XCHDEV")
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	// s, err := f.Stat()
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+	//
+	// b := make([]byte, s.Size())
+	// i, err := f.Read(b)
+	// if err != nil {
+	// 	t.Fatal(i, err)
+	// }
+	// fmt.Println(string(b))
+
+	t.Fail()
 }
+
+//

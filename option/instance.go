@@ -101,7 +101,7 @@ func (o *Option) FromInstance() error {
 			return err
 		}
 
-		err = macro.Correct(out, f)
+		err = macro.Correct(out, f, false)
 		if err != nil {
 			return err
 		}

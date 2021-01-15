@@ -3,6 +3,7 @@ package macro
 import (
 	"fmt"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 	"os"
 	"path"
 	"strings"
@@ -22,39 +23,60 @@ func LineS(s string) string {
 }
 
 // CRLF returns a new byte slice that has been converted
-func CRLF(b []byte) ([]byte, error) {
-	// check if it properly encodes to 1252
-	_, err := charmap.Windows1252.NewEncoder().Bytes(b)
-	if err != nil {
-		b, _ = charmap.Windows1252.NewDecoder().Bytes(b)
-	}
+func CRLF(ob []byte) ([]byte, error) {
 
-	for i := range b {
+	for i := range ob {
 		// check if first character is newline, convert if needed
-		if i == 0 && b[i] == 10 {
-			b = append(b, 0)
-			copy(b[i+1:], b[i:])
-			b[i] = 13
+		if i == 0 && ob[i] == 10 {
+			ob = append(ob, 0)
+			copy(ob[i+1:], ob[i:])
+			ob[i] = 13
 			continue
 		}
-		if b[i] == 10 && b[i-1] != 13 {
+		if ob[i] == 10 && ob[i-1] != 13 {
 			// fmt.Println("newline found")
-			b = append(b, 0)
-			copy(b[i+1:], b[i:])
-			b[i] = 13
+			ob = append(ob, 0)
+			copy(ob[i+1:], ob[i:])
+			ob[i] = 13
 		}
 	}
 
-	return charmap.Windows1252.NewEncoder().Bytes(b)
+	enc := charmap.Windows1252.NewEncoder()
+	// dec := charmap.Windows1252.NewDecoder()
+	var i int
+	var fb []byte
+	// dis is magic
+	// basically loop over ob using the enc.Transform to put bytes into a final object until you cannot encode something
+	// then just pop that cannot be encoded byte to the end but that doesn't sound right
+	// shouldn't i just discard the problem byte and call it good, ala registered symbol having a prepended byte in
+	// utf-8
+	for i < len(ob) {
+		ib := make([]byte, len(ob)-i)
+		di, si, err := enc.Transform(ib, ob[i:], false)
+		// we hit an error, take where we are
+		if err != nil {
+			fb = append(fb, ib[:di]...)
+			fb = append(fb, ob[di+i])
+			if err == transform.ErrShortSrc {
+				break
+			}
+		} else {
+			fb = append(fb, ib[:di]...)
+
+		}
+
+		i = si + i + 1
+	}
+	return fb, nil
 }
 
-func Correct(dst *os.File, src *os.File) error {
-
+func Correct(dst *os.File, src *os.File, force bool) error {
 	extToCorrect := map[string]bool{
 		".htm": true,
 		".sqi": true,
 		".sql": true,
 		".ini": true,
+		".txt": true,
 	}
 
 	info, err := src.Stat()
@@ -68,7 +90,7 @@ func Correct(dst *os.File, src *os.File) error {
 	}
 
 	_, ok := extToCorrect[strings.ToLower(path.Ext(src.Name()))]
-	if ok {
+	if ok || force {
 		b, err = CRLF(b)
 		if err != nil {
 			return fmt.Errorf("CRLF conversion failed: %v", err)
