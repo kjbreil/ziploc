@@ -33,7 +33,8 @@ func (o *Option) FindINI() error {
 			if o.InstanceDir != nil {
 				i.Instance = o.GetIniInstancePath(f.Name())
 			} else {
-				i.Base = &p
+				s := p
+				i.Base = &s
 			}
 
 			o.IniMaps[f.Name()[:len(f.Name())-len(filepath.Ext(f.Name()))]] = i

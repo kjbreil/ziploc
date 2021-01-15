@@ -12,7 +12,7 @@ import (
 type Option struct {
 	Name     string `json:"name"`
 	Priority int    `json:"priority"`
-	IsSample bool   `json:"is_sample"`
+	IsOption bool   `json:"is_option"`
 
 	Include map[string][]string `json:"include,omitempty"`
 	Exclude []string            `json:"exclude,omitempty"`
@@ -54,7 +54,7 @@ func (o *Option) safeName() string {
 
 func (o *Option) getType() string {
 	t := "Options"
-	if o.IsSample {
+	if !o.IsOption {
 		t = "Samples"
 	}
 	return t

@@ -64,7 +64,7 @@ func ConfigTemplate(withGit bool) {
 		Priority:   30,
 		BaseFolder: "c:\\storeman\\",
 		files:      make(map[string]os.FileInfo),
-		IsSample:   true,
+		IsOption:   false,
 		TempDir:    "SOME_SAMPLE",
 		Include:    make(map[string][]string),
 	}
