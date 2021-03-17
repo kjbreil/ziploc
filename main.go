@@ -22,10 +22,11 @@ func main() {
 	}
 
 	// // no configuration passed so run GUI
-	// if *configLocation == "" {
-	// 	gui.OpenGui()
-	// 	return
-	// }
+	if *configLocation == "" {
+		// gui.OpenGui()
+		log.Println("no config specified")
+		return
+	}
 
 	o, err := option.ReadConfig(configLocation)
 	if err != nil {
