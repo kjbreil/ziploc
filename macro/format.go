@@ -34,7 +34,6 @@ func CRLF(ob []byte) ([]byte, error) {
 			continue
 		}
 		if ob[i] == 10 && ob[i-1] != 13 {
-			// fmt.Println("newline found")
 			ob = append(ob, 0)
 			copy(ob[i+1:], ob[i:])
 			ob[i] = 13
@@ -49,7 +48,7 @@ func CRLF(ob []byte) ([]byte, error) {
 	// basically loop over ob using the enc.Transform to put bytes into a final object until you cannot encode something
 	// then just pop that cannot be encoded byte to the end but that doesn't sound right
 	// shouldn't i just discard the problem byte and call it good, ala registered symbol having a prepended byte in
-	// utf-8
+	// utf-8 but this works so fuck it
 	for i < len(ob) {
 		ib := make([]byte, len(ob)-i)
 		di, si, err := enc.Transform(ib, ob[i:], false)

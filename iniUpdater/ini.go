@@ -201,7 +201,7 @@ func (u *U) Bytes() []byte {
 		}
 	}
 	var pre string
-	if !strings.EqualFold(u.folder, "OFFICE") {
+	if !strings.EqualFold(strings.Trim(u.folder, "//"), "OFFICE") {
 		pre = fmt.Sprintf("../%s/", u.folder)
 	}
 	s := fmt.Sprintf("@dbHot(%s%s,SET,%s[*);",

@@ -21,7 +21,7 @@ func (u *ui) mainTab() *fyne.Container {
 	}
 
 	t := "Option"
-	if u.o.IsSample {
+	if !u.o.IsOption {
 		t = "Sample"
 	}
 	kind := &widget.Select{
@@ -65,9 +65,9 @@ func (u *ui) mainTab() *fyne.Container {
 			u.o.Instance = &in
 			u.o.InstanceDir = &id
 			if kind.Selected == "Sample" {
-				u.o.IsSample = true
+				u.o.IsOption = false
 			} else {
-				u.o.IsSample = false
+				u.o.IsOption = true
 			}
 
 			u.o.WriteConfig(u.configLocation)
@@ -84,9 +84,9 @@ func (u *ui) mainTab() *fyne.Container {
 			u.o.Instance = &in
 			u.o.InstanceDir = &id
 			if kind.Selected == "Sample" {
-				u.o.IsSample = true
+				u.o.IsOption = false
 			} else {
-				u.o.IsSample = false
+				u.o.IsOption = true
 			}
 			dialog.ShowInformation("Success", "Config was set in memory", u.w)
 		},
