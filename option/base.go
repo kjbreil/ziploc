@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func (o *Option) GetBaseFiles() error {
@@ -84,13 +85,17 @@ func (o *Option) CopyBase(root string) error {
 	log.Println("-->", root)
 	// b := filepath.Join(root, o.BaseFolder)
 	for ep, ef := range o.files {
-		var force bool // to force correction, only when its an ini for now
+		var force bool
 		f, err := os.Open(ep)
 		if err != nil {
 			return err
 		}
 		// folder := ep[len(b) : len(ep)-len(ef.Name())]
 		folder := filepath.Base(filepath.Dir(ep))
+		// log.Println(filepath.Base(o.BaseFolder), folder)
+		if filepath.Base(o.BaseFolder) == folder {
+			folder = ""
+		}
 		dest := o.makePath(root, folder, ef.Name())
 
 		// is the file a part of the ini map, maybe do something then
@@ -105,6 +110,10 @@ func (o *Option) CopyBase(root string) error {
 				dest = o.makePath(root, "INBOX", noExt+"_INI.SQL")
 				force = true
 			}
+		}
+
+		if strings.EqualFold(filepath.Ext(ef.Name()), ".sql") {
+			force = true
 		}
 
 		if _, err := os.Stat(filepath.Dir(dest)); os.IsNotExist(err) {
