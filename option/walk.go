@@ -45,6 +45,10 @@ func (o *Option) included(current string) bool {
 }
 
 func (o *Option) check(current string) (bool, string) {
+	if current[0] == []byte(".")[0] {
+		return false, ""
+	}
+
 	for folder := range o.Include {
 		if folder == "EVERY" {
 			continue
