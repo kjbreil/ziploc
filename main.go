@@ -13,6 +13,9 @@ var (
 
 func main() {
 
+	// gui.OpenGui()
+	// return
+
 	// Parse the flags
 	flag.Parse()
 
