@@ -1,0 +1,121 @@
+package extract
+
+import (
+	"fmt"
+	"github.com/kjbreil/ziploc/option"
+	"github.com/klauspost/compress/zip"
+	"io"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+)
+
+func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *option.Option) (*option.Option, error) {
+	// create the option object to make the json file
+
+	_, err := os.Stat(zipPath)
+	if err != nil {
+		return nil, err
+	}
+	r, err := zip.OpenReader(zipPath)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Close()
+
+	// check if there are files
+	if !isValid(r) {
+		return nil, fmt.Errorf("nothing in zip file")
+	}
+
+	// if mimicking an option build the base dir from the option base dir - 1 dir up
+	if optionMimick != nil {
+		basePath = filepath.Dir(filepath.Clean(optionMimick.BaseFolder))
+	}
+	log.Println(basePath)
+	// if nesting in last (usually) add that to the base dir from the last part of the sample
+	if nestInLast {
+		basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
+	}
+
+	o := &option.Option{
+		Name:     getSampleName(r),
+		Priority: 30,
+		IsOption: isOption(r),
+		Include: map[string][]string{
+			"every": []string{
+				".*",
+			},
+		},
+		Exclude:     nil,
+		Ignore:      nil,
+		BaseFolder:  basePath,
+		TempDir:     "",
+		ZipOut:      "",
+		Instance:    nil,
+		InstanceDir: nil,
+		Git:         nil,
+		IniMaps:     nil,
+	}
+
+	if optionMimick != nil {
+		o.ZipOut = optionMimick.ZipOut
+		o.TempDir = optionMimick.TempDir
+		o.Priority = optionMimick.Priority
+	}
+
+	err = extractZip(r, basePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return o, nil
+}
+
+func extractZip(r *zip.ReadCloser, dest string) error {
+	os.RemoveAll(dest)
+
+	for _, f := range r.File {
+		// log.Println(getOptionSampleSampleName(r))
+		outFilePath := filepath.Join(dest, strings.ReplaceAll(f.Name, getOptionSampleSampleName(r), ""))
+		if !strings.HasPrefix(outFilePath, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("%s: illegal file path", outFilePath)
+		}
+		if f.FileInfo().IsDir() {
+			// Make Folder
+			err := os.MkdirAll(outFilePath, os.ModePerm)
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		log.Println(outFilePath)
+
+		if err := os.MkdirAll(filepath.Dir(outFilePath), os.ModePerm); err != nil {
+			return err
+		}
+
+		outFile, err := os.OpenFile(outFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(outFile, rc)
+
+		// Close the file without defer to close before next iteration of loop
+		outFile.Close()
+		rc.Close()
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
