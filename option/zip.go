@@ -1,7 +1,7 @@
 package option
 
 import (
-	"archive/zip"
+	"github.com/klauspost/compress/zip"
 	"io"
 	"log"
 	"os"
@@ -74,6 +74,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath string, fileInfo os.FileInfo, 
 	}
 
 	header.Name = strings.Replace(filePath, tempDir, "", 1)
+	header.Name = strings.TrimLeft(header.Name, `/`)
 	header.Method = zip.Deflate
 
 	writer, err := zipWriter.CreateHeader(header)

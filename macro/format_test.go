@@ -54,7 +54,7 @@ func TestCRLF(t *testing.T) {
 
 	o, err := os.Create("./corrected.txt")
 
-	err = Correct(o, f, false)
+	err = Correct(o, f, true)
 	if err != nil {
 		t.Fatal(err)
 	}
