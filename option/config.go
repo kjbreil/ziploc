@@ -9,20 +9,20 @@ import (
 	"path/filepath"
 )
 
-func ReadConfig(configLocation *string) (*Option, error) {
+func ReadConfig(configPath string) (*Option, error) {
 
-	if *configLocation == "" {
+	if configPath == "" {
 		return nil, fmt.Errorf("config file not set")
 
 	}
 
-	if filepath.Ext(*configLocation) != ".json" {
+	if filepath.Ext(configPath) != ".json" {
 		return nil, fmt.Errorf("config file is not json")
 	}
 
-	b, err := ioutil.ReadFile(*configLocation)
+	b, err := ioutil.ReadFile(configPath)
 	if err != nil {
-		return nil, fmt.Errorf("error reading config file %s: %v", *configLocation, err)
+		return nil, fmt.Errorf("error reading config file %s: %v", configPath, err)
 	}
 
 	// make the option object and unmarshal the json into it
@@ -34,7 +34,7 @@ func ReadConfig(configLocation *string) (*Option, error) {
 	o.instanceFiles = make(map[string]os.FileInfo)
 
 	// set the root based on the config
-	o.root = filepath.Dir(*configLocation)
+	o.root = filepath.Dir(configPath)
 
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {

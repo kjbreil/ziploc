@@ -5,7 +5,6 @@ import (
 	"github.com/kjbreil/ziploc/option"
 	"github.com/klauspost/compress/zip"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -33,7 +32,6 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 	if optionMimick != nil {
 		basePath = filepath.Dir(filepath.Clean(optionMimick.BaseFolder))
 	}
-	log.Println(basePath)
 	// if nesting in last (usually) add that to the base dir from the last part of the sample
 	if nestInLast {
 		basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
@@ -90,8 +88,6 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 			}
 			continue
 		}
-
-		log.Println(outFilePath)
 
 		if err := os.MkdirAll(filepath.Dir(outFilePath), os.ModePerm); err != nil {
 			return err

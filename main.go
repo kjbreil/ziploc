@@ -38,8 +38,33 @@ func main() {
 		log.Println("no config specified")
 		return
 	}
+	cl := filepath.Clean(*configLocation)
 
-	o, err := option.ReadConfig(configLocation)
+	if filepath.Base(cl) == "*" {
+		folder, err := os.Stat(filepath.Dir(cl))
+		if err != nil {
+			panic(err)
+		}
+		if !folder.IsDir() {
+			panic("something went wrong, not a folder")
+		}
+		log.Println(filepath.Dir(cl))
+		filepath.Walk(filepath.Dir(cl), func(path string, info fs.FileInfo, err error) error {
+
+			if filepath.Ext(path) != ".json" {
+				return nil
+			}
+			doSingleConfig(path)
+
+			return nil
+		})
+	} else {
+		doSingleConfig(*configLocation)
+	}
+}
+
+func doSingleConfig(configPath string) {
+	o, err := option.ReadConfig(configPath)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -87,8 +112,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	o.WriteConfig(*configLocation)
-
+	o.WriteConfig(configPath)
 }
 
 func doFromZip() {
@@ -128,7 +152,7 @@ func doSingleZip(path string) {
 
 	// config exists so make o from that
 	if *configLocation != "" {
-		fromOption, err = option.ReadConfig(configLocation)
+		fromOption, err = option.ReadConfig(*configLocation)
 		if err != nil {
 			log.Panicln(err)
 		}
