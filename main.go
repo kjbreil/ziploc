@@ -8,11 +8,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
 	configLocation = flag.String("c", "", "Config file")
 	makeTemplate   = flag.Bool("template", false, "output a template config file and exit")
+
+	newConfig = flag.Bool("nc", false, "New config file to build from an original config and a new basepath")
 
 	fromZip  = flag.String("zip", "", "read from a zip and build config based on said zip, this is the zip file ot extract")
 	basePath = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
@@ -29,6 +32,11 @@ func main() {
 	// from zip argument passed
 	if *fromZip != "" {
 		doFromZip()
+		return
+	}
+
+	if *newConfig && *configLocation != "" {
+		copyConfig()
 		return
 	}
 
@@ -166,3 +174,65 @@ func doSingleZip(path string) {
 
 	newOption.WriteConfig(filepath.Join(configLocation, newOption.Name) + ".json")
 }
+
+func copyConfig() {
+	cleanBasePath := filepath.Clean(*basePath)
+	cleanConfigLocation := filepath.Clean(*configLocation)
+
+	log.Println(cleanBasePath)
+
+	originalOption, err := option.ReadConfig(cleanConfigLocation)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	newOptionName := filepath.Base(cleanBasePath)
+
+	newOptionBaseFolder := filepath.Join("..", cleanBasePath)
+
+	// log.Println(findMatchingTopLevelDir(originalOption.BaseFolder, cleanBasePath, cleanConfigLocation))
+
+	newOption := option.Option{
+		Name:        newOptionName,
+		Priority:    originalOption.Priority,
+		IsOption:    originalOption.IsOption,
+		Include:     originalOption.Include,
+		Exclude:     originalOption.Exclude,
+		Ignore:      originalOption.Ignore,
+		BaseFolder:  newOptionBaseFolder,
+		TempDir:     originalOption.TempDir,
+		ZipOut:      originalOption.ZipOut,
+		Instance:    originalOption.Instance,
+		InstanceDir: originalOption.InstanceDir,
+		Git:         originalOption.Git,
+		IniMaps:     originalOption.IniMaps,
+	}
+	cleanORiginalBaseFolder := filepath.Clean(originalOption.BaseFolder)
+
+	for k, v := range newOption.IniMaps {
+		trimmed := strings.TrimPrefix(*newOption.IniMaps[k].Base, strings.TrimPrefix(cleanORiginalBaseFolder, "../"))
+
+		newIniBase := filepath.Join(cleanBasePath, trimmed)
+		v.Base = &newIniBase
+		newOption.IniMaps[k] = v
+	}
+
+	outFileName := filepath.Join(filepath.Dir(cleanConfigLocation), newOptionName) + ".json"
+
+	newOption.WriteConfig(outFileName)
+	//
+	// log.Println(filepath.Base(cleanBasePath))
+	// log.Println(filepath.Dir(cleanConfigLocation))
+
+}
+
+// func findMatchingTopLevelDir(originalBase, newBase, configLocation string) string {
+// 	originalBase, newBase = filepath.Clean(originalBase), filepath.Clean(newBase)
+//
+// 	configSplit := strings.Split(configLocation, "/")
+// 	newBaseSplit := strings.Split(newBase, "/")
+//
+// 	log.Println(new)
+// 	log.Println(configLocation)
+// 	return ""
+// }
