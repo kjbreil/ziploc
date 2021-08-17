@@ -127,6 +127,8 @@ func doFromZip() {
 	fz := filepath.Clean(*fromZip)
 
 	if filepath.Base(fz) == "*" {
+		log.Println("making from zips")
+
 		folder, err := os.Stat(filepath.Dir(fz))
 		if err != nil {
 			panic(err)
@@ -134,18 +136,20 @@ func doFromZip() {
 		if !folder.IsDir() {
 			panic("something went wrong, not a folder")
 		}
-		log.Println(filepath.Dir(fz))
 		filepath.Walk(filepath.Dir(fz), func(path string, info fs.FileInfo, err error) error {
+			log.Println(path)
 
 			if filepath.Ext(path) != ".zip" {
 				return nil
 			}
+			log.Println("doing zip", path)
 			doSingleZip(path)
 
 			return nil
 		})
 
 	} else {
+		log.Println("making from zip")
 
 		doSingleZip(*fromZip)
 	}

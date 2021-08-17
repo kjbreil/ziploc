@@ -62,7 +62,7 @@ func (o *Option) getType() string {
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
 func (o *Option) makePath(root string, folder string, filename string) string {
-	p := filepath.Join(root, o.TempDir, o.getType(), o.dss.Name, folder, filename)
+	p := filepath.Join(root, o.tempSubDir(), o.getType(), o.dss.Name, folder, filename)
 	return p
 }
 
@@ -73,12 +73,16 @@ func (o *Option) makeBuildPath(root string, folder string, filename string) stri
 
 func (o *Option) DeleteTemp(root string) {
 	// stat the tmpdir and delete if there is no error (directory exists)
-	_, err := os.Stat(filepath.Join(root, o.TempDir))
+	_, err := os.Stat(filepath.Join(root, o.tempSubDir()))
 	if err == nil {
-		log.Printf("Removing temp directory: %s\n", filepath.Join(root, o.TempDir))
-		err = os.RemoveAll(filepath.Join(root, o.TempDir))
+		log.Printf("Removing temp directory: %s\n", filepath.Join(root, o.tempSubDir()))
+		err = os.RemoveAll(filepath.Join(root, o.tempSubDir()))
 		if err != nil {
 			log.Panicln(err)
 		}
 	}
+}
+
+func (o *Option) tempSubDir() string {
+	return filepath.Join(o.TempDir, o.Name)
 }

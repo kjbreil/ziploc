@@ -29,7 +29,7 @@ func (o *Option) MakeZip(root string) error {
 	files := make(map[string]os.FileInfo)
 
 	// "walk" the BaseFolder for files
-	err = filepath.Walk(filepath.Join(root, o.TempDir), func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(filepath.Join(root, o.tempSubDir()), func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			files[path] = info
 		}
@@ -43,7 +43,7 @@ func (o *Option) MakeZip(root string) error {
 		if i.Name() == "." {
 			continue
 		}
-		err = addFileToZip(zipWriter, p, i, o.TempDir)
+		err = addFileToZip(zipWriter, p, i, o.tempSubDir())
 		if err != nil {
 			return err
 		}

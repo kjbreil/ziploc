@@ -5,6 +5,7 @@ import (
 	"github.com/kjbreil/ziploc/option"
 	"github.com/klauspost/compress/zip"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,7 +35,10 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 	}
 	// if nesting in last (usually) add that to the base dir from the last part of the sample
 	if nestInLast {
-		basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
+		// log.Println("zp", strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
+		// basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
+		basePath = filepath.Join(basePath, strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
+
 	}
 
 	o := &option.Option{
@@ -72,8 +76,8 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 }
 
 func extractZip(r *zip.ReadCloser, dest string) error {
+	log.Println("extracting to ", dest)
 	os.RemoveAll(dest)
-
 	for _, f := range r.File {
 		// log.Println(getOptionSampleSampleName(r))
 		outFilePath := filepath.Join(dest, strings.ReplaceAll(f.Name, getOptionSampleSampleName(r), ""))
