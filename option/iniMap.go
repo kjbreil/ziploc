@@ -1,7 +1,6 @@
 package option
 
 import (
-	"fmt"
 	"path/filepath"
 	"strings"
 )
@@ -14,16 +13,16 @@ type IniMap struct {
 }
 
 func (o *Option) FindINI() error {
-	if o.dss == nil {
-		return fmt.Errorf("dss has not been generated yet")
-	}
+	// if o.dss == nil {
+	// 	return fmt.Errorf("dss has not been generated yet")
+	// }
 
 	for p, f := range o.files {
 		if strings.EqualFold(filepath.Ext(p), ".INI") {
 			if o.IniMaps == nil {
 				o.IniMaps = make(map[string]IniMap)
 			}
-			_, ok := o.IniMaps[f.Name()[:len(f.Name())-len(filepath.Ext(f.Name()))]]
+			_, ok := o.IniMaps[strings.ToUpper(f.Name()[:len(f.Name())-len(filepath.Ext(f.Name()))])]
 			if ok {
 				continue
 			}
@@ -37,7 +36,7 @@ func (o *Option) FindINI() error {
 				i.Base = &s
 			}
 
-			o.IniMaps[f.Name()[:len(f.Name())-len(filepath.Ext(f.Name()))]] = i
+			o.IniMaps[strings.ToUpper(f.Name()[:len(f.Name())-len(filepath.Ext(f.Name()))])] = i
 		}
 	}
 
@@ -51,4 +50,17 @@ func (o *Option) GetIniInstancePath(i string) *string {
 		}
 	}
 	return nil
+}
+
+func (o *Option) iniHasOriginal(iniName string) bool {
+	iniName = strings.ToUpper(iniName)
+	// currIni, ok := o.IniMaps[strings.ToUpper(iniName)]
+	currIni, ok := o.IniMaps[iniName[:len(iniName)-len(filepath.Ext(iniName))]]
+	if !ok {
+		return false
+	}
+	if currIni.Original != nil {
+		return true
+	}
+	return false
 }
