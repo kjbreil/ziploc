@@ -15,8 +15,8 @@ build_ziploc_linux:
 dist_darwin: build_ziploc_darwin
 	make distclean
 dist_windows: build_ziploc_windows
-	rm ziploc
 	make distclean
+	rm -f ./ziploc
 dist_windows: build_ziploc_linux
 	make distclean
 distclean:
