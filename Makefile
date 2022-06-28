@@ -20,7 +20,13 @@ dist_windows: build_ziploc_linux
 	make distclean
 distclean:
 	find . ! -name 'ziploc' ! -name 'ziploc.exe' ! -name 'README.md' ! -name 'LICENSE' -type f -exec rm -f {} +
-	find . ! -name '.git' -type d -exec rm -fR {} +
+	rm -fR ./dss
+	rm -fR ./extract
+	rm -fR ./gui
+	rm -fR ./iniUpdater
+	rm -fR ./macro
+	rm -fR ./option
+	rm -fR ./test
 doc:
 	godoc -http=localhost:6060
 vet:
