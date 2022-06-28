@@ -12,16 +12,9 @@ build_ziploc_windows:
 	GOOS=windows go build
 build_ziploc_linux:
 	GOOS=linux go build
-dist_darwin:
-	make build_ziploc_darwin
-	make distclean
-dist_windows:
-	make build_ziploc_windows
-	make distclean
-	rm -f ./ziploc
-dist_windows:
-	make build_ziploc_linux
-	make distclean
+dist_darwin: build_ziploc_darwin distclean
+dist_windows: build_ziploc_windows distclean
+dist_linux: build_ziploc_linux distclean
 distclean:
 	find . ! -name 'ziploc' ! -name 'ziploc.exe' ! -name 'README.md' ! -name 'LICENSE' -type f -exec rm -f {} +
 	rm -fR ./dss
