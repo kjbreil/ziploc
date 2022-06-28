@@ -95,6 +95,7 @@ func doSingleConfig(configPath string) {
 	if err != nil {
 		log.Panic(err)
 	}
+
 	// make dss object for base files
 	err = o.GetBaseDSS()
 	if err != nil {
