@@ -1,6 +1,7 @@
 package option
 
 import (
+	"fmt"
 	"github.com/klauspost/compress/zip"
 	"io"
 	"log"
@@ -15,12 +16,21 @@ func (o *Option) MakeZip(root string) error {
 
 	zipFilename := name + ".zip"
 
+	// check and create ZipOut folder if it does not exist
+	zipOutFolder := filepath.Join(root, o.ZipOut)
+	if _, err := os.Stat(zipOutFolder); os.IsNotExist(err) {
+		err = os.MkdirAll(zipOutFolder, 0777)
+		if err != nil {
+			return fmt.Errorf("could not create directory: %v", err)
+		}
+	}
+
 	zipPath := filepath.Join(root, o.ZipOut, zipFilename)
 
 	log.Printf("making zip file %s\n", zipPath)
 	zipFile, err := os.Create(zipPath)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not write zip: %s, %v", o.ZipOut, err)
 	}
 
 	// open a new zipWriter, explicitly closed at end of function
@@ -74,6 +84,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath string, fileInfo os.FileInfo, 
 	}
 
 	header.Name = strings.Replace(filePath, tempDir, "", 1)
+	header.Name = strings.Replace(header.Name, `\`, `/`, -1)
 	header.Name = strings.TrimLeft(header.Name, `/`)
 	header.Method = zip.Deflate
 

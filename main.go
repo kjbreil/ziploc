@@ -19,6 +19,8 @@ var (
 
 	fromZip  = flag.String("zip", "", "read from a zip and build config based on said zip, this is the zip file ot extract")
 	basePath = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
+
+	outDir = flag.String("out", "", "override zip output directory defined in the json")
 )
 
 func main() {
@@ -75,6 +77,10 @@ func doSingleConfig(configPath string) {
 	o, err := option.ReadConfig(configPath)
 	if err != nil {
 		log.Panic(err)
+	}
+
+	if *outDir != "" {
+		o.ZipOut = *outDir
 	}
 
 	if o.Git != nil {
