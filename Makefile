@@ -11,7 +11,7 @@ build_ziploc_darwin:
 build_ziploc_windows:
 	GOOS=windows go build
 build_ziploc_linux:
-	GOOS=linxux go build
+	GOOS=linux go build
 dist_darwin: build_ziploc_darwin
 	make distclean
 dist_windows: build_ziploc_windows
