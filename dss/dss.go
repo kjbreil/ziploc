@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kjbreil/crcloc"
+	"git.kaygel.io/locsms/crcloc"
 
 	"github.com/kjbreil/sil"
 )
