@@ -40,7 +40,7 @@ func (u *ui) loadJsonConfig(filename *string) {
 
 	u.configLocation = *filename
 
-	u.o, err = option.ReadConfig(filename)
+	u.o, err = option.ReadConfig(*filename)
 	if err != nil {
 		// TODO: Make this present an error dialog
 		dialog.ShowError(err, u.w)

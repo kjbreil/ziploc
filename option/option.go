@@ -21,6 +21,7 @@ type Option struct {
 	BaseFolder string `json:"base_folder"`
 	TempDir    string `json:"temp_dir"`
 	ZipOut     string `json:"zip_out"`
+	Version    string `json:"version"`
 
 	Instance    *string `json:"instance,omitempty"`
 	InstanceDir *string `json:"instance_dir,omitempty"`

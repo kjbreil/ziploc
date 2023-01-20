@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func (o *Option) MakeZip(root string) error {
@@ -35,6 +36,10 @@ func (o *Option) MakeZip(root string) error {
 
 	// open a new zipWriter, explicitly closed at end of function
 	zipWriter := zip.NewWriter(zipFile)
+
+	if o.Version != "" {
+		_ = zipWriter.SetComment(fmt.Sprintf("V%s %s", o.Version, time.Now().Format("2006-01-02")))
+	}
 
 	files := make(map[string]os.FileInfo)
 
