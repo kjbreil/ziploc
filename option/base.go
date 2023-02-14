@@ -5,7 +5,6 @@ import (
 	"github.com/kjbreil/ziploc/dss"
 	"github.com/kjbreil/ziploc/iniUpdater"
 	"github.com/kjbreil/ziploc/macro"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,13 +14,20 @@ import (
 func (o *Option) GetBaseFiles() error {
 	baseWithRoot := filepath.Join(o.root, o.BaseFolder)
 
+	if err := statBase(baseWithRoot); err != nil {
+		return err
+	}
+
+	if err := o.Walk(baseWithRoot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func statBase(baseWithRoot string) error {
 	info, err := os.Stat(baseWithRoot)
 	if err != nil || !info.IsDir() {
 		return fmt.Errorf("base directory not found %v", err)
-	}
-	err = o.Walk(baseWithRoot)
-	if err != nil {
-		return err
 	}
 	return nil
 }
@@ -63,7 +69,7 @@ func (o *Option) dssWalkTempDir(folder string) error {
 		return fmt.Errorf("%s is not a directory", folder)
 	}
 
-	files, err := ioutil.ReadDir(folder)
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		return err
 	}

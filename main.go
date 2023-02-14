@@ -12,17 +12,14 @@ import (
 )
 
 var (
-	configLocation = flag.String("c", "", "Config file")
-	makeTemplate   = flag.Bool("template", false, "output a template config file and exit")
-
-	newConfig = flag.Bool("nc", false, "New config file to build from an original config and a new basepath")
-
-	fromZip  = flag.String("zip", "", "read from a zip and build config based on said zip, this is the zip file ot extract")
-	basePath = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
-
-	outDir = flag.String("out", "", "override zip output directory defined in the json")
-
-	keepTemp = flag.Bool("kt", false, "Keep the temp directory for troubleshooting")
+	configLocation   = flag.String("c", "", "Config file")
+	makeTemplate     = flag.Bool("template", false, "output a template config file and exit")
+	justWalkInstance = flag.Bool("jw", false, "just walk the instance directory")
+	newConfig        = flag.Bool("nc", false, "New config file to build from an original config and a new basepath")
+	fromZip          = flag.String("zip", "", "read from a zip and build config based on said zip, this is the zip file ot extract")
+	basePath         = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
+	outDir           = flag.String("out", "", "override zip output directory defined in the json")
+	keepTemp         = flag.Bool("kt", false, "Keep the temp directory for troubleshooting")
 )
 
 func main() {
@@ -61,7 +58,7 @@ func main() {
 			panic("something went wrong, not a folder")
 		}
 		log.Println(filepath.Dir(cl))
-		filepath.Walk(filepath.Dir(cl), func(path string, info fs.FileInfo, err error) error {
+		err = filepath.Walk(filepath.Dir(cl), func(path string, info fs.FileInfo, err error) error {
 
 			if filepath.Ext(path) != ".json" {
 				return nil
@@ -70,6 +67,9 @@ func main() {
 
 			return nil
 		})
+		if err != nil {
+			log.Panicln(err)
+		}
 	} else {
 		doSingleConfig(*configLocation)
 	}
@@ -92,6 +92,17 @@ func doSingleConfig(configPath string) {
 		}
 	}
 
+	// if instanceDir is set walk it
+	if o.InstanceDir != nil {
+		err = o.WalkInstance(*o.InstanceDir)
+		if err != nil {
+			log.Panic(err)
+		}
+		if *justWalkInstance {
+			return
+		}
+	}
+
 	// get the files
 	err = o.GetBaseFiles()
 	if err != nil {
@@ -102,13 +113,6 @@ func doSingleConfig(configPath string) {
 	err = o.GetBaseDSS()
 	if err != nil {
 		log.Panic(err)
-	}
-	// if instanceDir is set walk it
-	if o.InstanceDir != nil {
-		err = o.WalkInstance(*o.InstanceDir)
-		if err != nil {
-			log.Panic(err)
-		}
 	}
 
 	// find any INI's and add them to the map
@@ -145,7 +149,7 @@ func doFromZip() {
 		if !folder.IsDir() {
 			panic("something went wrong, not a folder")
 		}
-		filepath.Walk(filepath.Dir(fz), func(path string, info fs.FileInfo, err error) error {
+		err = filepath.Walk(filepath.Dir(fz), func(path string, info fs.FileInfo, err error) error {
 			log.Println(path)
 
 			if filepath.Ext(path) != ".zip" {
@@ -156,6 +160,9 @@ func doFromZip() {
 
 			return nil
 		})
+		if err != nil {
+			log.Panicln(err)
+		}
 
 	} else {
 		log.Println("making from zip")

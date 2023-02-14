@@ -3,7 +3,6 @@ package option
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -20,7 +19,7 @@ func ReadConfig(configPath string) (*Option, error) {
 		return nil, fmt.Errorf("config file is not json")
 	}
 
-	b, err := ioutil.ReadFile(configPath)
+	b, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("error reading config file %s: %v", configPath, err)
 	}
@@ -33,8 +32,11 @@ func ReadConfig(configPath string) (*Option, error) {
 	o.files = make(map[string]os.FileInfo)
 	o.instanceFiles = make(map[string]os.FileInfo)
 
-	// set the root based on the config
-	o.root = filepath.Dir(configPath)
+	// set the root based on the config unless its a network drive
+	if o.BaseFolder[:2] != "\\\\" {
+
+		o.root = filepath.Dir(configPath)
+	}
 
 	// check if the priority isn't filled and default to 30
 	if o.Priority == 0 {
@@ -88,7 +90,7 @@ func (o *Option) WriteConfig(path string) {
 	if err != nil {
 		log.Panic(err)
 	}
-	err = ioutil.WriteFile(path, b, 0666)
+	err = os.WriteFile(path, b, 0666)
 	if err != nil {
 		log.Panic(err)
 	}

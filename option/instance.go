@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kjbreil/ziploc/dss"
 	"github.com/kjbreil/ziploc/macro"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -42,22 +41,27 @@ func (o *Option) WalkInstance(folder string) error {
 		return fmt.Errorf("%s is not a directory", folder)
 	}
 
-	files, err := ioutil.ReadDir(folder)
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		return err
 	}
 
 	for _, eachFile := range files {
 		p := filepath.Join(folder, eachFile.Name())
+
 		if eachFile.IsDir() {
 			err = o.WalkInstance(p)
 			if err != nil {
 				return err
 			}
 		}
+
 		if !eachFile.IsDir() && o.included(eachFile.Name()) && !o.excluded(eachFile.Name()) {
 			log.Printf("adding file: %s\n", p)
-			o.instanceFiles[p] = eachFile
+			o.instanceFiles[p], err = eachFile.Info()
+			if err != nil {
+				log.Panicln(err)
+			}
 		}
 	}
 
