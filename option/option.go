@@ -2,6 +2,8 @@ package option
 
 import (
 	"github.com/kjbreil/ziploc/dss"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"log"
 	"os"
 	"path/filepath"
@@ -50,7 +52,8 @@ func (o *Option) Folder(current string) string {
 }
 
 func (o *Option) safeName() string {
-	return strings.ReplaceAll(strings.Title(o.Name), " ", "_")
+	caser := cases.Title(language.AmericanEnglish)
+	return strings.ReplaceAll(caser.String(o.Name), " ", "_")
 }
 
 func (o *Option) getType() string {

@@ -2,7 +2,6 @@ package option
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -19,7 +18,7 @@ func (o *Option) Walk(folder string) error {
 		return fmt.Errorf("%s is not a directory", folder)
 	}
 
-	files, err := ioutil.ReadDir(folder)
+	files, err := os.ReadDir(folder)
 	if err != nil {
 		return err
 	}

@@ -16,8 +16,14 @@ func File(original, custom, folder string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	tempFile.Write(b)
-	tempFile.Seek(0, 0)
+	_, err = tempFile.Write(b)
+	if err != nil {
+		return nil, err
+	}
+	_, err = tempFile.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
 	return tempFile, nil
 }
 
@@ -28,7 +34,13 @@ func ManualFile(file string, folder string, section string, key string, value st
 	if err != nil {
 		return nil, err
 	}
-	tempFile.Write(b)
-	tempFile.Seek(0, 0)
+	_, err = tempFile.Write(b)
+	if err != nil {
+		return nil, err
+	}
+	_, err = tempFile.Seek(0, 0)
+	if err != nil {
+		return nil, err
+	}
 	return tempFile, nil
 }

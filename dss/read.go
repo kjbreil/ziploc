@@ -2,15 +2,15 @@ package dss
 
 import (
 	"github.com/kjbreil/sil/silread"
-	"io/ioutil"
 	"log"
+	"os"
 )
 
 func Read(filename string) *DSS {
 
 	var t Table
 
-	b, _ := ioutil.ReadFile(filename)
+	b, _ := os.ReadFile(filename)
 
 	m, err := silread.Unmarshal(b, t)
 

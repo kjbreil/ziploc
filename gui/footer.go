@@ -55,7 +55,7 @@ func (u *ui) createFooter() *fyne.Container {
 					dialog.ShowError(err, u.w)
 					return
 				}
-				err = u.o.FromBase(filepath.Dir(u.configLocation))
+				err = u.o.FromBase(filepath.Dir(u.configLocation), true)
 				if err != nil {
 					dialog.ShowError(err, u.w)
 				} else {

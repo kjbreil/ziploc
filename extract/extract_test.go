@@ -11,7 +11,7 @@ func TestReadZip(t *testing.T) {
 		Priority: 30,
 		IsOption: false,
 		Include: map[string][]string{
-			"every": []string{
+			"every": {
 				".*",
 			},
 		},

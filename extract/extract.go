@@ -22,7 +22,12 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
+	defer func(r *zip.ReadCloser) {
+		err := r.Close()
+		if err != nil {
+			log.Panicln(err)
+		}
+	}(r)
 
 	// check if there are files
 	if !isValid(r) {
@@ -46,7 +51,7 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 		Priority: 30,
 		IsOption: isOption(r),
 		Include: map[string][]string{
-			"every": []string{
+			"every": {
 				".*",
 			},
 		},
@@ -77,7 +82,10 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 
 func extractZip(r *zip.ReadCloser, dest string) error {
 	log.Println("extracting to ", dest)
-	os.RemoveAll(dest)
+	err := os.RemoveAll(dest)
+	if err != nil {
+		return err
+	}
 	for _, f := range r.File {
 		// log.Println(getOptionSampleSampleName(r))
 		outFilePath := filepath.Join(dest, strings.ReplaceAll(f.Name, getOptionSampleSampleName(r), ""))
@@ -110,8 +118,14 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 		_, err = io.Copy(outFile, rc)
 
 		// Close the file without defer to close before next iteration of loop
-		outFile.Close()
-		rc.Close()
+		err = outFile.Close()
+		if err != nil {
+			return err
+		}
+		err = rc.Close()
+		if err != nil {
+			return err
+		}
 
 		if err != nil {
 			return err

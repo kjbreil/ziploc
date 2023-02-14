@@ -1,9 +1,8 @@
 package option
 
 import (
-	"io/ioutil"
-
 	"github.com/kjbreil/ziploc/macro"
+	"os"
 )
 
 // WriteInstall is a hack for now until a macro module is fleshed out
@@ -12,5 +11,5 @@ func (o *Option) WriteInstall(root string) error {
 	s += macro.LineS("@WIZRESET;")
 	s += macro.LineS("@EXEC(SQL=REFRESH_MENU);")
 
-	return ioutil.WriteFile(o.makePath(root, "", "INSTALL.SQL"), []byte(s), 0666)
+	return os.WriteFile(o.makePath(root, "", "INSTALL.SQL"), []byte(s), 0666)
 }
