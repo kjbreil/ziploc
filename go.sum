@@ -1,7 +1,5 @@
 fyne.io/fyne v1.4.3 h1:356CnXCiYrrfaLGsB7qLK3c6ktzyh8WR05v/2RBu51I=
 fyne.io/fyne v1.4.3/go.mod h1:8kiPBNSDmuplxs9WnKCkaWYqbcXFy0DeAzwa6PBO9Z8=
-git.kaygel.io/locsms/crcloc v0.0.0-20191129165521-8fe67cc484a9 h1:tsfI9QN5Y04mEpqVYMJWWUjAVM0GPuY4EkPd7uU5CpU=
-git.kaygel.io/locsms/crcloc v0.0.0-20191129165521-8fe67cc484a9/go.mod h1:xD7ffJUDJmYChDNnW81CDGa8Yw4S541efZ2pXsktUoo=
 github.com/Kodeworks/golang-image-ico v0.0.0-20141118225523-73f0f4cfade9/go.mod h1:7uhhqiBaR4CpN0k9rMjOtjpcfGd6DG2m04zQxKnWQ0I=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
 github.com/Microsoft/go-winio v0.4.16/go.mod h1:XB6nPKklQyQ7GC9LdcBEcBl8PF76WugXOPRXwdLnMv0=
@@ -68,6 +66,8 @@ github.com/jessevdk/go-flags v1.5.0/go.mod h1:Fw0T6WPc1dYxT4mKEZRfG5kJhaTDP9pj1c
 github.com/josephspurrier/goversioninfo v0.0.0-20200309025242-14b0ab84c6ca/go.mod h1:eJTEwMjXb7kZ633hO3Ln9mBUCOjX2+FlTljvpl9SYdE=
 github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351 h1:DowS9hvgyYSX4TO5NpyC606/Z4SxnNYbT+WX27or6Ck=
 github.com/kevinburke/ssh_config v0.0.0-20201106050909-4977a11b4351/go.mod h1:CT57kijsi8u/K/BOFA39wgDQJ9CxiF4nAY/ojJ6r6mM=
+github.com/kjbreil/crcloc v0.0.0-20191129165521-8fe67cc484a9 h1:ecbVmgTrtdPtmKfaR8u3HLwQGGMQTb0Tjr6PJQHyTgo=
+github.com/kjbreil/crcloc v0.0.0-20191129165521-8fe67cc484a9/go.mod h1:9oaemd9Rmj7g13FvnXt69UJb64gF/nhmhliHRxKVkGE=
 github.com/kjbreil/sil v0.0.0-20220317232344-90e7d4e3f62c h1:IAcpJ0j46O9T0TakxiXg0UYSPwMYJQlmTIikFaF0+C4=
 github.com/kjbreil/sil v0.0.0-20220317232344-90e7d4e3f62c/go.mod h1:aSMCeZ86si4fTzPyP9NMqzeiT2tWbqu4oOrOP/GwUxY=
 github.com/klauspost/compress v1.15.14 h1:i7WCKDToww0wA+9qrUZ1xOjp218vfFo3nTU6UHp+gOc=
