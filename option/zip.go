@@ -3,6 +3,8 @@ package option
 import (
 	"fmt"
 	"github.com/klauspost/compress/zip"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"io"
 	"log"
 	"os"
@@ -12,8 +14,8 @@ import (
 )
 
 func (o *Option) MakeZip(root string) error {
-
-	name := strings.ReplaceAll(strings.Title(o.Name), " ", "_")
+	caser := cases.Title(language.AmericanEnglish)
+	name := strings.ReplaceAll(caser.String(o.Name), " ", "_")
 
 	zipFilename := name + ".zip"
 
@@ -103,5 +105,5 @@ func addFileToZip(zipWriter *zip.Writer, filePath string, fileInfo os.FileInfo, 
 		return err
 	}
 
-	return nil
+	return fileData.Close()
 }
