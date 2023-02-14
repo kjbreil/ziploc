@@ -33,4 +33,20 @@ func TestOption_ReadIni(t *testing.T) {
 	t.Fail()
 }
 
+func TestOption_CreateManual(t *testing.T) {
+	u := CreateManual("NCBP_VERSION.INI", "OFFICE", "VERSION", "TEST", "v.1.0.0.0")
+	//u := New()
+	//u.file = "NCBP_VERSION.INI"
+	//u.folder = "OFFICE"
+	//u.sections = append(u.sections, "VERSION")
+	//u.sectionKeys["VERSION"] = []string{"TEST"}
+	////u.checkFor["VERSION"] = make(map[string]string)
+	////u.checkFor["VERSION"]["TEST"] = "v1.0.0.0"
+	//u.D["VERSION"] = make(map[string]string)
+	//u.D["VERSION"]["TEST"] = "v1.0.0.0"
+
+	b := u.Bytes()
+	fmt.Println(string(b))
+}
+
 //

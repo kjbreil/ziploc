@@ -211,3 +211,15 @@ func (u *U) Bytes() []byte {
 	b = append(b, []byte(s)...)
 	return b
 }
+
+func CreateManual(file string, folder string, section string, key string, value string) *U {
+
+	u := New()
+	u.file = file
+	u.folder = folder
+	u.sections = append(u.sections, section)
+	u.sectionKeys[section] = []string{key}
+	u.D[section] = make(map[string]string)
+	u.D[section][key] = value
+	return u
+}

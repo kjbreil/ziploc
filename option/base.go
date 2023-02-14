@@ -86,7 +86,7 @@ func (o *Option) dssWalkTempDir(folder string) error {
 	return nil
 }
 
-func (o *Option) FromBase(root string) error {
+func (o *Option) FromBase(root string, keepTemp bool) error {
 	o.DeleteTemp(root)
 	var err error
 	// making the temp directory
@@ -131,6 +131,10 @@ func (o *Option) FromBase(root string) error {
 		return err
 	}
 
+	if !keepTemp {
+		o.DeleteTemp(root)
+	}
+
 	return nil
 }
 
@@ -148,7 +152,12 @@ func (o *Option) CopyBase(root string) error {
 			return err
 		}
 		// folder := ep[len(b) : len(ep)-len(ef.Name())]
-		folder := filepath.Base(filepath.Dir(ep))
+		folder := strings.Replace(filepath.Dir(ep), o.BaseFolder, "", 1)
+		if len(folder) > 0 && folder[0] == os.PathSeparator {
+			folder = folder[1:]
+		}
+
+		//folder := filepath.Base(filepath.Dir(ep))
 		// log.Println(filepath.Base(o.BaseFolder), folder)
 		if filepath.Base(o.BaseFolder) == folder {
 			folder = ""
@@ -193,5 +202,9 @@ func (o *Option) CopyBase(root string) error {
 		_ = f.Close()
 		_ = out.Close()
 	}
+	if o.Version != "" {
+		return o.makeVersionIni(root)
+	}
+
 	return nil
 }

@@ -21,6 +21,8 @@ var (
 	basePath = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
 
 	outDir = flag.String("out", "", "override zip output directory defined in the json")
+
+	keepTemp = flag.Bool("kt", false, "Keep the temp directory for troubleshooting")
 )
 
 func main() {
@@ -122,7 +124,7 @@ func doSingleConfig(configPath string) {
 		}
 	}
 
-	err = o.FromBase("")
+	err = o.FromBase("", *keepTemp)
 	if err != nil {
 		log.Panic(err)
 	}
