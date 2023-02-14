@@ -33,7 +33,10 @@ func (o *Option) Walk(folder string) error {
 			continue
 		}
 		// log.Printf("adding file: %s\n", p)
-		o.files[p] = eachFile
+		o.files[p], err = eachFile.Info()
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
