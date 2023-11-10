@@ -31,6 +31,7 @@ func ReadConfig(configPath string) (*Option, error) {
 	// make the files map
 	o.files = make(map[string]os.FileInfo)
 	o.instanceFiles = make(map[string]os.FileInfo)
+	o.configLocation = configPath
 
 	// set the root based on the config unless its a network drive
 	if o.BaseFolder[:2] != "\\\\" {
@@ -62,13 +63,14 @@ func (o *Option) DefaultInclude() {
 func ConfigTemplate(withGit bool) {
 	// setup Option information
 	o := Option{
-		Name:       "SOME SAMPLE",
-		Priority:   30,
-		BaseFolder: "c:\\storeman\\",
-		files:      make(map[string]os.FileInfo),
-		IsOption:   false,
-		TempDir:    "SOME_SAMPLE",
-		Include:    make(map[string][]string),
+		Name:           "SOME SAMPLE",
+		Priority:       30,
+		BaseFolder:     "c:\\storeman\\",
+		files:          make(map[string]os.FileInfo),
+		IsOption:       false,
+		TempDir:        "SOME_SAMPLE",
+		Include:        make(map[string][]string),
+		configLocation: "./template.json",
 	}
 
 	if withGit {
@@ -82,15 +84,16 @@ func ConfigTemplate(withGit bool) {
 		"system.ini",
 		"samples.ini",
 	}
-	o.WriteConfig("./template.json")
+
+	o.WriteConfig()
 }
 
-func (o *Option) WriteConfig(path string) {
+func (o *Option) WriteConfig() {
 	b, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
 		log.Panic(err)
 	}
-	err = os.WriteFile(path, b, 0666)
+	err = os.WriteFile(o.configLocation, b, 0666)
 	if err != nil {
 		log.Panic(err)
 	}

@@ -33,10 +33,11 @@ type Option struct {
 	IniMaps map[string]IniMap `json:"ini_maps,omitempty"`
 
 	// Not Exported
-	root          string
-	files         map[string]os.FileInfo
-	instanceFiles map[string]os.FileInfo
-	dss           *dss.DSS
+	root           string
+	files          map[string]os.FileInfo
+	instanceFiles  map[string]os.FileInfo
+	dss            *dss.DSS
+	configLocation string
 }
 
 type Git struct {
@@ -89,4 +90,8 @@ func (o *Option) DeleteTemp(root string) {
 
 func (o *Option) tempSubDir() string {
 	return filepath.Join(o.TempDir, o.Name)
+}
+
+func (o *Option) SetConfigLocation(name string) {
+	o.configLocation = name
 }

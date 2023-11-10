@@ -1,11 +1,11 @@
 package gui
 
 import (
-	"fyne.io/fyne"
-	"fyne.io/fyne/container"
-	"fyne.io/fyne/layout"
-	"fyne.io/fyne/theme"
-	"fyne.io/fyne/widget"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 )
 
 func (u *ui) instanceTab() fyne.CanvasObject {
@@ -48,7 +48,7 @@ func (u *ui) instanceTab() fyne.CanvasObject {
 func (u *ui) showExcludes() fyne.CanvasObject {
 	icon := widget.NewIcon(nil)
 	label := widget.NewLabel("Select An Item From The List")
-	hbox := fyne.NewContainerWithLayout(layout.NewHBoxLayout(), icon, label)
+	hbox := container.New(layout.NewHBoxLayout(), icon, label)
 
 	list := widget.NewList(func() int {
 		return len(u.o.Exclude)

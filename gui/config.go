@@ -1,7 +1,7 @@
 package gui
 
 import (
-	"fyne.io/fyne/container"
+	"fyne.io/fyne/v2/container"
 	"log"
 )
 

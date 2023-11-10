@@ -20,6 +20,7 @@ var (
 	basePath         = flag.String("base", "base", "base path to which extraction of the zip happens, if a config is provided this is ignored")
 	outDir           = flag.String("out", "", "override zip output directory defined in the json")
 	keepTemp         = flag.Bool("kt", false, "Keep the temp directory for troubleshooting")
+	smsxConfig       = flag.String("x", "", "use SMSX config file at this location")
 )
 
 func main() {
@@ -41,9 +42,14 @@ func main() {
 		return
 	}
 
+	if *configLocation == "" && *smsxConfig != "" {
+		readSmsxConfig(*smsxConfig)
+		return
+	}
+
 	// // no configuration passed so run GUI
 	if *configLocation == "" {
-		// gui.OpenGui()
+		//gui.OpenGui()
 		log.Println("no config specified")
 		return
 	}
@@ -63,7 +69,7 @@ func main() {
 			if filepath.Ext(path) != ".json" {
 				return nil
 			}
-			doSingleConfig(path)
+			readConfig(path)
 
 			return nil
 		})
@@ -71,15 +77,28 @@ func main() {
 			log.Panicln(err)
 		}
 	} else {
-		doSingleConfig(*configLocation)
+		readConfig(*configLocation)
 	}
 }
 
-func doSingleConfig(configPath string) {
+func readSmsxConfig(configPath string) {
+	o, err := option.ReadSmsxConfig(configPath)
+	if err != nil {
+		log.Panic(err)
+	}
+	doSingleConfig(o)
+}
+
+func readConfig(configPath string) {
 	o, err := option.ReadConfig(configPath)
 	if err != nil {
 		log.Panic(err)
 	}
+	doSingleConfig(o)
+}
+
+func doSingleConfig(o *option.Option) {
+	var err error
 
 	if *outDir != "" {
 		o.ZipOut = *outDir
@@ -133,7 +152,7 @@ func doSingleConfig(configPath string) {
 		log.Panic(err)
 	}
 
-	o.WriteConfig(configPath)
+	o.WriteConfig()
 }
 
 func doFromZip() {
@@ -191,8 +210,8 @@ func doSingleZip(path string) {
 	}
 	// get the folder that the fromOption is in
 	configLocation := filepath.Dir(*configLocation)
-
-	newOption.WriteConfig(filepath.Join(configLocation, newOption.Name) + ".json")
+	newOption.SetConfigLocation(filepath.Join(configLocation, newOption.Name) + ".json")
+	newOption.WriteConfig()
 }
 
 func copyConfig() {
@@ -239,7 +258,8 @@ func copyConfig() {
 
 	outFileName := filepath.Join(filepath.Dir(cleanConfigLocation), newOptionName) + ".json"
 
-	newOption.WriteConfig(outFileName)
+	newOption.SetConfigLocation(outFileName)
+	newOption.WriteConfig()
 	//
 	// log.Println(filepath.Base(cleanBasePath))
 	// log.Println(filepath.Dir(cleanConfigLocation))
