@@ -81,5 +81,7 @@ func ReadSmsxConfig(configPath string) (*Option, error) {
 		o.Priority = 30
 	}
 
+	o.Clean()
+
 	return &o, err
 }

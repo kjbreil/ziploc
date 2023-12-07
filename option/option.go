@@ -95,3 +95,10 @@ func (o *Option) tempSubDir() string {
 func (o *Option) SetConfigLocation(name string) {
 	o.configLocation = name
 }
+
+// Clean updates folders to be clean
+func (o *Option) Clean() {
+	o.BaseFolder = filepath.Clean(o.BaseFolder)
+	o.TempDir = filepath.Clean(o.TempDir)
+	o.ZipOut = filepath.Clean(o.ZipOut)
+}

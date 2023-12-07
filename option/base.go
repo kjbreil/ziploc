@@ -158,12 +158,15 @@ func (o *Option) CopyBase(root string) error {
 			return err
 		}
 		// folder := ep[len(b) : len(ep)-len(ef.Name())]
-		folder := strings.Replace(filepath.Dir(ep), o.BaseFolder, "", 1)
+		// remove anything to the left of basefolder in each path
+		_, folder, _ := strings.Cut(filepath.Dir(ep), o.BaseFolder)
+
+		// folder := strings.Replace(filepath.Dir(ep), o.BaseFolder, "", 1)
 		if len(folder) > 0 && folder[0] == os.PathSeparator {
 			folder = folder[1:]
 		}
 
-		//folder := filepath.Base(filepath.Dir(ep))
+		// folder := filepath.Base(filepath.Dir(ep))
 		// log.Println(filepath.Base(o.BaseFolder), folder)
 		if filepath.Base(o.BaseFolder) == folder {
 			folder = ""
