@@ -101,4 +101,5 @@ func (o *Option) Clean() {
 	o.BaseFolder = filepath.Clean(o.BaseFolder)
 	o.TempDir = filepath.Clean(o.TempDir)
 	o.ZipOut = filepath.Clean(o.ZipOut)
+	o.Name = specialCase(o.Name)
 }

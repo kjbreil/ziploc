@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *option.Option) (*option.Option, error) {
+func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimic *option.Option, smsx bool) (*option.Option, error) {
 	// create the option object to make the json file
 
 	_, err := os.Stat(zipPath)
@@ -35,8 +35,8 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 	}
 
 	// if mimicking an option build the base dir from the option base dir - 1 dir up
-	if optionMimick != nil {
-		basePath = filepath.Dir(filepath.Clean(optionMimick.BaseFolder))
+	if optionMimic != nil {
+		basePath = filepath.Dir(filepath.Clean(optionMimic.BaseFolder))
 	}
 	// if nesting in last (usually) add that to the base dir from the last part of the sample
 	if nestInLast {
@@ -64,11 +64,16 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 		Git:         nil,
 		IniMaps:     nil,
 	}
+	o.Clean()
 
-	if optionMimick != nil {
-		o.ZipOut = optionMimick.ZipOut
-		o.TempDir = optionMimick.TempDir
-		o.Priority = optionMimick.Priority
+	if optionMimic != nil {
+		o.ZipOut = optionMimic.ZipOut
+		o.TempDir = optionMimic.TempDir
+		o.Priority = optionMimic.Priority
+	}
+
+	if smsx {
+		basePath = filepath.Join(basePath, "SmsCode")
 	}
 
 	err = extractZip(r, basePath)

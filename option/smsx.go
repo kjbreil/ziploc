@@ -85,3 +85,24 @@ func ReadSmsxConfig(configPath string) (*Option, error) {
 
 	return &o, err
 }
+func (o *Option) WriteSmsx(path string) error {
+
+	isOption := 0
+	if o.IsOption {
+		isOption = 1
+	}
+
+	smsx := SMSX{
+		ProjectName:    o.Name,
+		Creator:        "NCBP",
+		SamplePriority: o.Priority,
+		IsOption:       isOption,
+	}
+
+	b, err := xml.Marshal(smsx)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, b, 0666)
+}

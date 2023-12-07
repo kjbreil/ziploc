@@ -203,7 +203,7 @@ func doSingleZip(path string) {
 			log.Panicln(err)
 		}
 	}
-	newOption, err = extract.ReadZip(path, *basePath, true, fromOption)
+	newOption, err = extract.ReadZip(path, *basePath, true, fromOption, false)
 	if err != nil {
 		log.Panicln(err)
 	}

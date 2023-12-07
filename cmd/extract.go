@@ -33,30 +33,35 @@ to quickly create a Cobra application.`,
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		zipPath := filepath.Clean(args[0])
-		var basePath string
+		basePath := filepath.Dir(zipPath)
 
 		if len(args) == 2 {
 			basePath = filepath.Clean(args[1])
 		}
 
-		if filepath.Base(zipPath) == "*" {
-			log.Println("making from zips")
+		doSmsx, _ := cmd.Flags().GetBool("smsx")
 
+		multi, _ := cmd.Flags().GetBool("multi")
+
+		if multi {
 			folder, err := os.Stat(filepath.Dir(zipPath))
 			if err != nil {
 				panic(err)
 			}
 			if !folder.IsDir() {
-				panic("something went wrong, not a folder")
+				panic("something went wrong, path is not a folder")
 			}
-			err = filepath.Walk(filepath.Dir(zipPath), func(path string, info fs.FileInfo, err error) error {
+			err = filepath.Walk(zipPath, func(path string, info fs.FileInfo, err error) error {
 				log.Println(path)
 
 				if filepath.Ext(path) != ".zip" {
 					return nil
 				}
-				log.Println("doing zip", path)
-				doSingleZip(path, "")
+				if doSmsx {
+					createSmsxFolder(path, basePath)
+				} else {
+					createZiplocFolder(path, basePath)
+				}
 
 				return nil
 			})
@@ -65,17 +70,47 @@ to quickly create a Cobra application.`,
 			}
 
 		} else {
-			doSingleZip(zipPath, basePath)
+			if filepath.Ext(zipPath) != ".zip" {
+				fmt.Printf("file provided was not a zip, did you mean to do a multi (-m)")
+				return
+			}
+			if doSmsx {
+				createSmsxFolder(zipPath, basePath)
+			} else {
+				createZiplocFolder(zipPath, basePath)
+			}
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(extractCmd)
-
+	extractCmd.PersistentFlags().BoolP("smsx", "s", false, "create SMSX compatible output directory")
+	extractCmd.PersistentFlags().BoolP("multi", "m", false, "given a directory create folder for all zips")
+	// extractCmd.PersistentFlags().StringP("out-dir", "o", "", "output to a certain directory, defaults to zip directory")
 }
 
-func doSingleZip(path, basePath string) {
+func createSmsxFolder(path, basePath string) {
+	var err error
+	var newOption *option.Option
+
+	newOption, err = extract.ReadZip(path, basePath, true, nil, true)
+	if err != nil {
+		log.Panicln(err)
+	}
+
+	configName := filepath.Join(newOption.BaseFolder, newOption.Name+".smsx")
+
+	err = newOption.WriteSmsx(configName)
+	if err != nil {
+		log.Panicln(err)
+	}
+	// make gitignore
+
+	os.WriteFile(filepath.Join(newOption.BaseFolder, ".gitignore"), []byte("[Rr]elease/%\n[Tt]emp/%\n"), 0666)
+}
+
+func createZiplocFolder(path, basePath string) {
 	log.Println("doing single zip")
 	var err error
 	var fromOption *option.Option
@@ -89,13 +124,13 @@ func doSingleZip(path, basePath string) {
 	// 	}
 	// }
 
-	newOption, err = extract.ReadZip(path, basePath, true, fromOption)
+	newOption, err = extract.ReadZip(path, basePath, true, fromOption, false)
 	if err != nil {
 		log.Panicln(err)
 	}
 	fmt.Println(newOption)
 	// get the folder that the fromOption is in
 	// configLocation := filepath.Dir(*configLocation)
-	// newOption.SetConfigLocation(filepath.Join(configLocation, newOption.Name) + ".json")
-	// newOption.WriteConfig()
+	newOption.SetConfigLocation(filepath.Join(basePath, newOption.Name) + ".json")
+	newOption.WriteConfig()
 }

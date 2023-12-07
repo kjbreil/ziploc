@@ -17,10 +17,7 @@ import (
 
 func (o *Option) MakeZip(root string) error {
 
-	name := strings.ReplaceAll(o.Name, "_", " ")
-	caser := cases.Title(language.AmericanEnglish)
-	name = strings.ReplaceAll(caser.String(name), " ", "_")
-	name = specialCase(name)
+	name := specialCase(o.Name)
 	// name = strings.ReplaceAll(name, "_Ncbp_", "_NCBP_")
 
 	// name := strings.ReplaceAll(o.Name, " ", "_")
@@ -125,6 +122,9 @@ func addFileToZip(zipWriter *zip.Writer, filePath string, fileInfo os.FileInfo, 
 }
 
 func specialCase(s string) string {
+	s = strings.ReplaceAll(s, "_", " ")
+	caser := cases.Title(language.AmericanEnglish)
+	s = strings.ReplaceAll(caser.String(s), " ", "_")
 
 	u := []string{
 		"NCBP",
