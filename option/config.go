@@ -3,7 +3,6 @@ package option
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 )
@@ -60,7 +59,7 @@ func (o *Option) DefaultInclude() {
 	o.Include["every"] = []string{".*"}
 }
 
-func ConfigTemplate(withGit bool) {
+func ConfigTemplate(withGit bool) error {
 	// setup Option information
 	o := Option{
 		Name:           "SOME SAMPLE",
@@ -85,16 +84,18 @@ func ConfigTemplate(withGit bool) {
 		"samples.ini",
 	}
 
-	o.WriteConfig()
+	return o.WriteConfig()
 }
 
-func (o *Option) WriteConfig() {
+func (o *Option) WriteConfig() error {
 	b, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 	err = os.WriteFile(o.configLocation, b, 0666)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
+
+	return nil
 }

@@ -43,7 +43,6 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 		// log.Println("zp", strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
 		// basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
 		basePath = filepath.Join(basePath, strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
-
 	}
 
 	o := &option.Option{
@@ -88,7 +87,9 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 	}
 	for _, f := range r.File {
 		// log.Println(getOptionSampleSampleName(r))
-		outFilePath := filepath.Join(dest, strings.ReplaceAll(f.Name, getOptionSampleSampleName(r), ""))
+		optionSampleName := getOptionSampleSampleName(r)
+		fName := f.Name
+		outFilePath := filepath.Join(dest, strings.ReplaceAll(fName, optionSampleName, ""))
 		if !strings.HasPrefix(outFilePath, filepath.Clean(dest)+string(os.PathSeparator)) {
 			return fmt.Errorf("%s: illegal file path", outFilePath)
 		}
