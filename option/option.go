@@ -67,7 +67,7 @@ func (o *Option) getType() string {
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
 func (o *Option) makePath(root string, folder string, filename string) string {
-	p := filepath.Join(root, o.tempSubDir(), o.getType(), o.dss.Name, folder, filename)
+	p := filepath.Join(root, o.tempSubDir(), o.getType(), o.Name, folder, filename)
 	return p
 }
 

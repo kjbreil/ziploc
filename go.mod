@@ -17,12 +17,16 @@ require (
 	github.com/kjbreil/crcloc v0.0.0-20191129165521-8fe67cc484a9
 	github.com/kjbreil/sil v0.0.0-20220317232344-90e7d4e3f62c
 	github.com/klauspost/compress v1.17.2
+	github.com/schollz/progressbar/v3 v3.14.4 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/skeema/knownhosts v1.2.1 // indirect
 	github.com/spf13/cobra v1.8.0
 	github.com/srwiley/oksvg v0.0.0-20221011165216-be6e8873101c // indirect
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	golang.org/x/image v0.14.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.15.0 // indirect
 )
+
+replace github.com/kjbreil/sil => /Users/kjell/dev/sil

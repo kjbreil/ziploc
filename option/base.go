@@ -49,46 +49,12 @@ func (o *Option) GetBaseDSS() error {
 	// 		continue
 	// 	}
 	//
-	// 	err := o.dss.Add(path)
+	// 	err := o.dss.add(path)
 	// 	if err != nil {
 	// 		return fmt.Errorf("error adding %s to dss: %v\n", path, err)
 	// 	}
 	// }
 
-	return nil
-}
-
-// filepath.Join(o.tempSubDir())
-func (o *Option) dssWalkTempDir(folder string) error {
-
-	stat, err := os.Stat(folder)
-	if err != nil {
-		return err
-	}
-	if !stat.IsDir() {
-		return fmt.Errorf("%s is not a directory", folder)
-	}
-
-	files, err := os.ReadDir(folder)
-	if err != nil {
-		return err
-	}
-
-	for _, eachFile := range files {
-		p := filepath.Join(folder, eachFile.Name())
-		if eachFile.IsDir() {
-			err = o.dssWalkTempDir(p)
-			if err != nil {
-				return err
-			}
-			continue
-		}
-		// log.Printf("adding file: %s\n", p)
-		err := o.dss.Add(p)
-		if err != nil {
-			return fmt.Errorf("error adding %s to dss: %v\n", p, err)
-		}
-	}
 	return nil
 }
 
@@ -121,13 +87,13 @@ func (o *Option) FromBase(root string, keepTemp bool) error {
 	}
 
 	// make the DSS here
-	err = o.dssWalkTempDir(filepath.Join(o.tempSubDir()))
+	err = o.dss.WalkDir(filepath.Join(o.tempSubDir()))
 	if err != nil {
 		return err
 	}
 
 	// Write the DSS to the temp directory
-	err = o.dss.Write(filepath.Join(root, o.tempSubDir(), o.getType(), o.dss.Name))
+	err = o.dss.Write(filepath.Join(root, o.tempSubDir(), o.getType(), o.Name))
 	if err != nil {
 		return err
 	}

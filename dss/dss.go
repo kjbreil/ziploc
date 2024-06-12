@@ -15,9 +15,10 @@ import (
 
 // dss is fed the info about the files and outputs a dss file
 type DSS struct {
-	Name     string
+	name     string
 	SIL      *sil.SIL
-	Data     []Table
+	Data     Entries
+	Ignore   []string
 	priority int
 }
 
@@ -30,7 +31,7 @@ func New(name string, priority int) *DSS {
 	activate(s)
 
 	return &DSS{
-		Name:     makeName(name),
+		name:     makeName(name),
 		SIL:      s,
 		priority: priority,
 	}
@@ -40,12 +41,19 @@ func makeName(name string) string {
 	return strings.ToUpper(strings.ReplaceAll(name, " ", "_"))
 }
 
-// Add a file to the dss, fp is the path of the file
-func (d *DSS) Add(fp string) error {
+// add a file to the dss, fp is the path of the file
+func (d *DSS) add(fp string) error {
 
 	// ignore anything in the INBOX as that is not confirmed in the DSS
 	if Destination(fp) == "INBOX" {
 		return nil
+	}
+
+	// ignore anything specified in the ignore list
+	for _, ignore := range d.Ignore {
+		if strings.Contains(strings.ToLower(fp), strings.ToLower(ignore)) {
+			return nil
+		}
 	}
 
 	f, err := os.Open(fp)
@@ -73,14 +81,14 @@ func (d *DSS) Add(fp string) error {
 	t := Table{
 		Priority:    d.priority,
 		Author:      "NCBP",
-		Option:      d.Name,
+		Option:      d.name,
 		Destination: Destination(fp),
 		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
 		Signature:   crcloc.Hash(b),
 	}
 
-	d.Data = append(d.Data, t)
+	d.Data = append(d.Data, &t)
 	d.SIL.View.Data = append(d.SIL.View.Data, t)
 
 	return nil
@@ -89,7 +97,7 @@ func (d *DSS) Add(fp string) error {
 // Write writes a dss to file
 func (d *DSS) Write(folder string) error {
 
-	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.Name))
+	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.name))
 
 	if _, err := os.Stat(filepath.Dir(fullpath)); os.IsNotExist(err) {
 		err = os.MkdirAll(filepath.Dir(fullpath), 0777)

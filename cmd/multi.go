@@ -49,10 +49,14 @@ to quickly create a Cobra application.`,
 		keepTemp, _ := cmd.Flags().GetBool("keep-temp")
 		writeConfig, _ := cmd.Flags().GetBool("write-config")
 		version, _ := cmd.Flags().GetString("set-version")
+		outDir, _ := cmd.Flags().GetString("out-dir")
 
 		for _, o := range options {
 			if version != "" {
 				o.Version = version
+			}
+			if outDir != "" {
+				o.ZipOut = outDir
 			}
 			err = create.Single(o, justWalk, keepTemp, writeConfig)
 			if err != nil {

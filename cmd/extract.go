@@ -128,9 +128,6 @@ func createZiplocFolder(path, basePath string) {
 	if err != nil {
 		log.Panicln(err)
 	}
-	fmt.Println(newOption)
-	// get the folder that the fromOption is in
-	// configLocation := filepath.Dir(*configLocation)
 	newOption.SetConfigLocation(filepath.Join(basePath, newOption.Name) + ".json")
 	newOption.WriteConfig()
 }
