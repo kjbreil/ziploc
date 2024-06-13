@@ -20,7 +20,8 @@ import (
 // }
 
 func TestDetect_Compare(t *testing.T) {
-	d := New("/Volumes/REG/Office/")
+	// d := New("/Volumes/REG/Office/")
+	d := New("./../test_files/DSS_CUSTOM")
 	// d.AddOptionDir(
 	// 	"./../test_files/DSS_ORIGINAL_OPTION1",
 	// 	"./../test_files/DSS_ORIGINAL_OPTION2",
@@ -30,7 +31,7 @@ func TestDetect_Compare(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = d.AddSampleDirs("/Volumes/REG/Samples/")
+	// err = d.AddSampleDirs("/Volumes/REG/Samples/")
 	if err != nil {
 		t.Fatal(err)
 	}

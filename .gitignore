@@ -18,3 +18,5 @@ out/**
 ziploc
 
 *.zip
+
+test_files/**

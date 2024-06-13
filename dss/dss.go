@@ -2,7 +2,7 @@ package dss
 
 import (
 	"fmt"
-	"log"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -57,25 +57,21 @@ func (d *DSS) add(fp string) error {
 	}
 
 	f, err := os.Open(fp)
+	defer func(f *os.File) {
+		err = f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(f)
 	if err != nil {
 		return fmt.Errorf("could not open %s with error: %v", fp, err)
 	}
 
+	b, err := io.ReadAll(f)
+
 	info, err := f.Stat()
 	if err != nil {
 		return fmt.Errorf("could not stat %s with error: %v", fp, err)
-	}
-
-	b := make([]byte, info.Size())
-
-	_, err = f.Read(b)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = f.Close()
-	if err != nil {
-		return err
 	}
 
 	t := Table{

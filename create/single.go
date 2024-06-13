@@ -24,6 +24,11 @@ func Single(o *option.Option, justWalk, keepTemp, writeConfig bool) error {
 		}
 
 		if justWalk {
+			// copy from the instance dir if just walking
+			err = copyInstanceDir(o)
+			if err != nil {
+				return err
+			}
 			return nil
 		}
 	}
@@ -46,11 +51,9 @@ func Single(o *option.Option, justWalk, keepTemp, writeConfig bool) error {
 		return err
 	}
 
-	if o.InstanceDir != nil {
-		err = o.FromInstance()
-		if err != nil {
-			return err
-		}
+	err = copyInstanceDir(o)
+	if err != nil {
+		return err
 	}
 
 	err = o.FromBase("", keepTemp)
@@ -63,4 +66,14 @@ func Single(o *option.Option, justWalk, keepTemp, writeConfig bool) error {
 	}
 
 	return o.WriteConfig()
+}
+
+func copyInstanceDir(o *option.Option) error {
+	if o.InstanceDir != nil {
+		err := o.FromInstance()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

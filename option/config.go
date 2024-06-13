@@ -49,16 +49,18 @@ func ReadConfig(configPath string) (*Option, error) {
 }
 
 func (o *Option) DefaultExclude() {
-	o.Exclude = []string{
+	o.Exclude = append(o.Exclude, []string{
 		"TEMP",
 		"SAMPLES",
 		"OPTIONS",
-	}
+	}...)
 }
 
 func (o *Option) DefaultInclude() {
-	o.Include = make(map[string][]string)
-	o.Include["every"] = []string{".*"}
+	if o.Include == nil {
+		o.Include = make(map[string][]string)
+	}
+	o.Include["every"] = append(o.Include["every"], ".*")
 }
 
 func ConfigTemplate(withGit bool) error {

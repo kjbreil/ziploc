@@ -96,7 +96,8 @@ func (o *Option) SetConfigLocation(name string) {
 	o.configLocation = name
 }
 
-// Clean updates folders to be clean
+// Clean updates folders to be clean as per filepant.Clean()
+// removes .. and adjusts for os version
 func (o *Option) Clean() {
 	o.BaseFolder = filepath.Clean(o.BaseFolder)
 	o.TempDir = filepath.Clean(o.TempDir)

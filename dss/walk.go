@@ -1,8 +1,10 @@
 package dss
 
 import (
+	"context"
 	"fmt"
 	"github.com/schollz/progressbar/v3"
+	"golang.org/x/sync/errgroup"
 	"os"
 	"path/filepath"
 	"time"
@@ -12,13 +14,8 @@ func (d *DSS) WalkDir(folder string) error {
 	return d.walkDir(folder, nil)
 }
 func (d *DSS) WalkDirProgress(folder string) error {
-	count, err := d.DirFilesCount(folder)
-	if err != nil {
-		return err
-	}
-
 	bar := progressbar.NewOptions64(
-		int64(count),
+		int64(100),
 		progressbar.OptionSetDescription(folder),
 		progressbar.OptionSetWriter(os.Stderr),
 		// progressbar.OptionSetWidth(10),
@@ -38,37 +35,71 @@ func (d *DSS) WalkDirProgress(folder string) error {
 }
 
 func (d *DSS) walkDir(folder string, bar *progressbar.ProgressBar) error {
-	stat, err := os.Stat(folder)
+
+	paths, err := getPaths(folder)
 	if err != nil {
 		return err
 	}
+	if bar != nil {
+		bar.ChangeMax(len(paths))
+	}
+
+	// addChan := make(chan string, numOfRoutines)
+
+	g, _ := errgroup.WithContext(context.Background())
+	numOfRoutines := 100
+	g.SetLimit(numOfRoutines)
+	for _, p := range paths {
+		pp := p
+		g.Go(func() error {
+			err = d.add(pp)
+			if err != nil {
+				return err
+			}
+			if bar != nil {
+				err = bar.Add(1)
+				if err != nil {
+					return err
+				}
+			}
+			return nil
+		})
+	}
+	if err = g.Wait(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func getPaths(folder string) ([]string, error) {
+	stat, err := os.Stat(folder)
+	if err != nil {
+		return nil, err
+	}
 	if !stat.IsDir() {
-		return fmt.Errorf("%s is not a directory", folder)
+		return nil, fmt.Errorf("%s is not a directory", folder)
 	}
 
 	files, err := os.ReadDir(folder)
 	if err != nil {
-		return err
+		return nil, err
 	}
+
+	var paths []string
 
 	for _, eachFile := range files {
 		p := filepath.Join(folder, eachFile.Name())
 		if eachFile.IsDir() {
-			err = d.walkDir(p, bar)
+			addPaths, err := getPaths(p)
 			if err != nil {
-				return err
+				return nil, err
 			}
+			paths = append(paths, addPaths...)
 			continue
 		}
-		err = d.add(p)
-		if bar != nil {
-			bar.Add(1)
-		}
-		if err != nil {
-			return fmt.Errorf("error adding %s to dss: %v\n", p, err)
-		}
+		paths = append(paths, p)
 	}
-	return nil
+	return paths, nil
 }
 
 func (d *DSS) DirFilesCount(folder string) (int, error) {
@@ -84,7 +115,6 @@ func (d *DSS) DirFilesCount(folder string) (int, error) {
 	files, err := os.ReadDir(folder)
 	if err != nil {
 		return count, err
-
 	}
 	var newCount int
 
