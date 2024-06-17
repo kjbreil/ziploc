@@ -212,6 +212,10 @@ func (u *U) Bytes() []byte {
 	return b
 }
 
+func (u *U) Empty() bool {
+	return u.sections == nil
+}
+
 func CreateManual(file string, folder string, section string, key string, value string) *U {
 
 	u := New()

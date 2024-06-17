@@ -5,6 +5,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,12 +33,15 @@ type Option struct {
 
 	IniMaps map[string]IniMap `json:"ini_maps,omitempty"`
 
+	Detect *Detect `json:"detect,omitempty"`
+
 	// Not Exported
 	root           string
 	files          map[string]os.FileInfo
 	instanceFiles  map[string]os.FileInfo
 	dss            *dss.DSS
 	configLocation string
+	logger         *slog.Logger
 }
 
 type Git struct {
@@ -45,6 +49,13 @@ type Git struct {
 	Branch    string `json:"branch"`
 	Username  string `json:"username"`
 	AuthToken string `json:"auth_token"`
+}
+
+func (o *Option) Log() *slog.Logger {
+	if o.logger == nil {
+		o.logger = slog.Default()
+	}
+	return o.logger
 }
 
 func (o *Option) Folder(current string) string {
@@ -73,6 +84,7 @@ func (o *Option) makePath(root string, folder string, filename string) string {
 
 func (o *Option) makeBuildPath(root string, folder string, filename string) string {
 	p := filepath.Join(root, o.BaseFolder, folder, filename)
+
 	return p
 }
 

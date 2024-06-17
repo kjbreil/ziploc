@@ -33,11 +33,11 @@ to quickly create a Cobra application.`,
 
 		folder, err := os.Stat(topDir)
 		if err != nil {
-			fmt.Printf("directory read error: %v", err)
+			logger.Error("could not stat topDir", "err", err)
 			return
 		}
 		if !folder.IsDir() {
-			fmt.Printf("something went wrong, not a folder")
+			logger.Error("topDir is not a folder", "err", err)
 			return
 		}
 		recursive, _ := cmd.Flags().GetBool("recursive")
@@ -50,17 +50,26 @@ to quickly create a Cobra application.`,
 		writeConfig, _ := cmd.Flags().GetBool("write-config")
 		version, _ := cmd.Flags().GetString("set-version")
 		outDir, _ := cmd.Flags().GetString("out-dir")
+		pullFromInstance, _ := cmd.Flags().GetBool("pull-instance")
+
+		s := create.Single{
+			JustWalk:         justWalk,
+			KeepTemp:         keepTemp,
+			WriteConfig:      writeConfig,
+			PullFromInstance: pullFromInstance,
+		}
 
 		for _, o := range options {
+			s.Option = o
 			if version != "" {
 				o.Version = version
 			}
 			if outDir != "" {
 				o.ZipOut = outDir
 			}
-			err = create.Single(o, justWalk, keepTemp, writeConfig)
+			err = s.Run()
 			if err != nil {
-				fmt.Println(err)
+				logger.Error(fmt.Sprintf("error running %s", o.Name), "err", err)
 			}
 		}
 	},
@@ -71,6 +80,7 @@ func init() {
 
 	multiCmd.PersistentFlags().BoolP("recursive", "r", false, "recursively look for valid config files")
 
+	multiCmd.PersistentFlags().StringP("pull-instance", "i", "", "pull from instance")
 	multiCmd.PersistentFlags().StringP("out-dir", "o", "", "override zip output directory defined in the json")
 	multiCmd.PersistentFlags().BoolP("just-walk", "j", false, "just walk the instance, copying files over without creating a zip")
 	multiCmd.PersistentFlags().BoolP("keep-temp", "k", false, "keep temp files")
@@ -99,7 +109,7 @@ func findConfigsInDirectory(dir string, smsx, recursive bool) map[string]*option
 		}
 
 		if !smsx && filepath.Ext(path) == ".json" {
-			o, _ := option.ReadConfig(path)
+			o, _ := option.ReadConfig(path, logger)
 			options[path] = o
 		}
 

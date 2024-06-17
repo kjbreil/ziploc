@@ -3,6 +3,7 @@ package detect
 import (
 	"fmt"
 	"github.com/kjbreil/ziploc/dss"
+	"github.com/kjbreil/ziploc/iniUpdater"
 	"os"
 	"path/filepath"
 )
@@ -12,15 +13,48 @@ type Detect struct {
 	optionsDirs []string
 	samplesDirs []string
 	instanceDir string
+	includes    []string
+	originalDSS *dss.DSS
+	customDSS   *dss.DSS
+	inis        map[string][]*iniUpdater.U
+}
+
+var ValidDirsInOffice map[string]struct{}
+var ValidDirsInStoreman map[string]struct{}
+
+func init() {
+	ValidDirsInOffice = map[string]struct{}{
+		"usp":  {},
+		"ssm":  {},
+		"sqr":  {},
+		"rtm":  {},
+		"load": {},
+		"lbz":  {},
+		"htm":  {},
+		"cgi":  {},
+	}
+	ValidDirsInStoreman = map[string]struct{}{
+		"office": {},
+	}
 }
 
 func New(instanceDir string) *Detect {
+
+	ignores := []string{
+		".git",
+		".vscode",
+		".DS_Store",
+	}
+	includes := make([]string, 0, len(ValidDirsInOffice)+len(ValidDirsInStoreman))
+	for eachDir := range ValidDirsInOffice {
+		includes = append(includes, eachDir)
+	}
+	for eachDir := range ValidDirsInStoreman {
+		includes = append(includes, eachDir)
+	}
 	return &Detect{
-		ignores: []string{
-			".git",
-			".vscode",
-			".DS_Store",
-		},
+		ignores:     ignores,
+		includes:    includes,
 		instanceDir: instanceDir,
 	}
 }
@@ -83,36 +117,58 @@ func (d *Detect) AddSampleDir(sampleDir ...string) {
 	d.samplesDirs = append(d.samplesDirs, sampleDir...)
 }
 
+func (d *Detect) Detect() error {
+	if d.originalDSS == nil {
+		d.originalDSS = dss.New("original", 30)
+		var err error
+		for _, optionDir := range d.optionsDirs {
+			nd := dss.New(filepath.Base(optionDir), 30)
+			nd.Author = optionDir
+			err = nd.WalkDirProgress(optionDir)
+			if err != nil {
+				return err
+			}
+			d.originalDSS.Merge(nd)
+		}
+		for _, sampleDir := range d.samplesDirs {
+			nd := dss.New(filepath.Base(sampleDir), 25)
+			nd.Author = sampleDir
+			err = nd.WalkDirProgress(sampleDir)
+			if err != nil {
+				return err
+			}
+			d.originalDSS.Merge(nd)
+		}
+	}
+	if d.customDSS == nil {
+		d.customDSS = dss.New("custom", 1)
+		d.customDSS.Author = d.instanceDir
+		d.customDSS.Ignore = d.ignores
+		d.customDSS.Includes = d.includes
+		err := d.customDSS.WalkDirProgress(d.instanceDir)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (d *Detect) Compare() (dss.Entries, error) {
-	originalDss := dss.New("original", 30)
-	var err error
-	for _, optionDir := range d.optionsDirs {
-		nd := dss.New(filepath.Base(optionDir), 30)
-
-		err = nd.WalkDirProgress(optionDir)
-		if err != nil {
-			return nil, err
-		}
-		originalDss.Merge(nd)
+	err := d.Detect()
+	if err != nil {
+		return nil, err
 	}
-	for _, sampleDir := range d.samplesDirs {
-		nd := dss.New(filepath.Base(sampleDir), 25)
-		err = nd.WalkDirProgress(sampleDir)
-		if err != nil {
-			return nil, err
-		}
-		originalDss.Merge(nd)
-	}
-
-	customDss := dss.New("custom", 1)
-	customDss.Ignore = d.ignores
-	err = customDss.WalkDirProgress(d.instanceDir)
 
 	var entries dss.Entries
-	for _, e := range customDss.Data {
-		if !originalDss.Matches(e) {
+	for _, e := range d.customDSS.Data {
+		if !d.originalDSS.Matches(e) {
 			entries = append(entries, e)
 		}
 	}
 	return entries, nil
+}
+
+func (d *Detect) INIs() map[string][]*iniUpdater.U {
+	return d.inis
 }

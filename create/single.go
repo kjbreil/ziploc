@@ -6,26 +6,34 @@ import (
 	"github.com/kjbreil/ziploc/option"
 )
 
-func Single(o *option.Option, justWalk, keepTemp, writeConfig bool) error {
+type Single struct {
+	JustWalk         bool
+	KeepTemp         bool
+	WriteConfig      bool
+	PullFromInstance bool
+	Option           *option.Option
+}
+
+func (s *Single) Run() error {
 	var err error
 
-	if o.Git != nil {
-		err = o.DoGitRepo()
+	if s.Option.Git != nil {
+		err = s.Option.DoGitRepo()
 		if err != nil {
 			return fmt.Errorf("git repo read error: %w", err)
 		}
 	}
 
 	// if instanceDir is set walk it
-	if o.InstanceDir != nil {
-		err = o.WalkInstance(*o.InstanceDir)
+	if s.Option.InstanceDir != nil {
+		err = s.Option.WalkInstance(*s.Option.InstanceDir)
 		if err != nil {
 			return err
 		}
 
-		if justWalk {
+		if s.JustWalk {
 			// copy from the instance dir if just walking
-			err = copyInstanceDir(o)
+			err = copyInstanceDir(s.Option)
 			if err != nil {
 				return err
 			}
@@ -34,38 +42,38 @@ func Single(o *option.Option, justWalk, keepTemp, writeConfig bool) error {
 	}
 
 	// get the files
-	err = o.GetBaseFiles()
+	err = s.Option.GetBaseFiles()
 	if err != nil {
 		return err
 	}
 
 	// make dss object for base files
-	err = o.GetBaseDSS()
+	err = s.Option.GetBaseDSS()
 	if err != nil {
 		return err
 	}
 
 	// find any INI's and add them to the map
-	err = o.FindINI()
+	err = s.Option.FindINI()
 	if err != nil {
 		return err
 	}
 
-	err = copyInstanceDir(o)
+	err = copyInstanceDir(s.Option)
 	if err != nil {
 		return err
 	}
 
-	err = o.FromBase("", keepTemp)
+	err = s.Option.FromBase("", s.KeepTemp)
 	if err != nil {
 		return err
 	}
 
-	if !writeConfig {
+	if !s.WriteConfig {
 		return nil
 	}
 
-	return o.WriteConfig()
+	return s.Option.WriteConfig()
 }
 
 func copyInstanceDir(o *option.Option) error {

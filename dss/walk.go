@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/schollz/progressbar/v3"
-	"golang.org/x/sync/errgroup"
+	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 )
 
@@ -43,31 +44,63 @@ func (d *DSS) walkDir(folder string, bar *progressbar.ProgressBar) error {
 	if bar != nil {
 		bar.ChangeMax(len(paths))
 	}
-
-	// addChan := make(chan string, numOfRoutines)
-
-	g, _ := errgroup.WithContext(context.Background())
 	numOfRoutines := 100
-	g.SetLimit(numOfRoutines)
-	for _, p := range paths {
-		pp := p
-		g.Go(func() error {
-			err = d.add(pp)
-			if err != nil {
-				return err
-			}
-			if bar != nil {
-				err = bar.Add(1)
-				if err != nil {
-					return err
+	addChan := make(chan string, numOfRoutines)
+	ctx, cancel := context.WithCancel(context.Background())
+	wg := sync.WaitGroup{}
+
+	for range numOfRoutines {
+		go func() {
+			wg.Add(1)
+			defer wg.Done()
+			for {
+				select {
+				case p := <-addChan:
+					err = d.add(p)
+					if err != nil {
+						log.Println(err)
+					}
+					if bar != nil {
+						err = bar.Add(1)
+						if err != nil {
+							log.Println(err)
+						}
+					}
+				case <-ctx.Done():
+					return
 				}
 			}
-			return nil
-		})
+		}()
 	}
-	if err = g.Wait(); err != nil {
-		return err
+	for _, p := range paths {
+		addChan <- p
 	}
+	for len(addChan) > 0 {
+		time.Sleep(1 * time.Millisecond)
+	}
+	cancel()
+	wg.Wait()
+	// g, _ := errgroup.WithContext(context.Background())
+	// g.SetLimit(numOfRoutines)
+	// for _, p := range paths {
+	// 	pp := p
+	// 	g.Go(func() error {
+	// 		err = d.add(pp)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 		if bar != nil {
+	// 			err = bar.Add(1)
+	// 			if err != nil {
+	// 				return err
+	// 			}
+	// 		}
+	// 		return nil
+	// 	})
+	// }
+	// if err = g.Wait(); err != nil {
+	// 	return err
+	// }
 	return nil
 }
 

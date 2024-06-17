@@ -35,10 +35,11 @@ to quickly create a Cobra application.`,
 		if doSmsx {
 			o, err = option.ReadSmsxConfig(configLoc)
 		} else {
-			o, err = option.ReadConfig(configLoc)
+			o, err = option.ReadConfig(configLoc, logger)
 		}
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(fmt.Sprintf("error reading config file %s", configLoc), "err", err)
+
 			os.Exit(1)
 		}
 
@@ -46,14 +47,23 @@ to quickly create a Cobra application.`,
 		keepTemp, _ := cmd.Flags().GetBool("keep-temp")
 		writeConfig, _ := cmd.Flags().GetBool("write-config")
 		outDir, _ := cmd.Flags().GetString("out-dir")
+		pullFromInstance, _ := cmd.Flags().GetBool("pull-instance")
 
 		if outDir != "" {
 			o.ZipOut = outDir
 		}
 
-		err = create.Single(o, justWalk, keepTemp, writeConfig)
+		s := create.Single{
+			JustWalk:         justWalk,
+			KeepTemp:         keepTemp,
+			WriteConfig:      writeConfig,
+			PullFromInstance: pullFromInstance,
+			Option:           o,
+		}
+
+		err = s.Run()
 		if err != nil {
-			fmt.Println(err)
+			logger.Error(fmt.Sprintf("error running %s", o.Name), "err", err)
 			os.Exit(1)
 		}
 	},
@@ -63,6 +73,7 @@ func init() {
 	rootCmd.AddCommand(singleCmd)
 
 	singleCmd.PersistentFlags().StringP("out-dir", "o", "", "override zip output directory defined in the json")
+	singleCmd.PersistentFlags().StringP("pull-instance", "i", "", "pull from instance")
 	singleCmd.PersistentFlags().BoolP("just-walk", "j", false, "just walk the instance, copying files over without creating a zip")
 	singleCmd.PersistentFlags().BoolP("keep-temp", "k", false, "keep temp files")
 	singleCmd.PersistentFlags().BoolP("smsx", "s", false, "use SMSX config format")

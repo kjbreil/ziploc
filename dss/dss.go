@@ -6,7 +6,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/kjbreil/crcloc"
 
@@ -20,6 +22,10 @@ type DSS struct {
 	Data     Entries
 	Ignore   []string
 	priority int
+	Includes []string
+
+	m      *sync.Mutex
+	Author string
 }
 
 func New(name string, priority int) *DSS {
@@ -34,6 +40,8 @@ func New(name string, priority int) *DSS {
 		name:     makeName(name),
 		SIL:      s,
 		priority: priority,
+		Author:   "NCBP",
+		m:        &sync.Mutex{},
 	}
 }
 
@@ -51,7 +59,24 @@ func (d *DSS) add(fp string) error {
 
 	// ignore anything specified in the ignore list
 	for _, ignore := range d.Ignore {
-		if strings.Contains(strings.ToLower(fp), strings.ToLower(ignore)) {
+		reg, err := regexp.Compile("(?i)" + ignore)
+		if err != nil {
+			// TODO: report error
+			continue
+		}
+
+		if reg.MatchString(fp) {
+			return nil
+		}
+	}
+	if len(d.Includes) > 0 {
+		var match bool
+		for _, include := range d.Includes {
+			if strings.ToLower(filepath.Base(filepath.Dir(fp))) == include {
+				match = true
+			}
+		}
+		if !match {
 			return nil
 		}
 	}
@@ -76,16 +101,17 @@ func (d *DSS) add(fp string) error {
 
 	t := Table{
 		Priority:    d.priority,
-		Author:      "NCBP",
+		Author:      d.Author,
 		Option:      d.name,
 		Destination: Destination(fp),
 		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
 		Signature:   crcloc.Hash(b),
 	}
-
+	d.m.Lock()
 	d.Data = append(d.Data, &t)
 	d.SIL.View.Data = append(d.SIL.View.Data, t)
+	d.m.Unlock()
 
 	return nil
 }

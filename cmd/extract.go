@@ -46,13 +46,15 @@ to quickly create a Cobra application.`,
 		if multi {
 			folder, err := os.Stat(filepath.Dir(zipPath))
 			if err != nil {
-				panic(err)
+				logger.Error("zipPath read error", "err", err)
+				return
 			}
 			if !folder.IsDir() {
-				panic("something went wrong, path is not a folder")
+				logger.Error("zipPath is not a folder")
+				return
 			}
 			err = filepath.Walk(zipPath, func(path string, info fs.FileInfo, err error) error {
-				log.Println(path)
+				logger.Info(fmt.Sprintf("walking %s", path))
 
 				if filepath.Ext(path) != ".zip" {
 					return nil
@@ -66,12 +68,13 @@ to quickly create a Cobra application.`,
 				return nil
 			})
 			if err != nil {
-				log.Panicln(err)
+				logger.Error("could not walk path", "err", err)
+				return
 			}
 
 		} else {
 			if filepath.Ext(zipPath) != ".zip" {
-				fmt.Printf("file provided was not a zip, did you mean to do a multi (-m)")
+				logger.Error("file provided was not a zip, did you mean to do a multi (-m)")
 				return
 			}
 			if doSmsx {
@@ -111,7 +114,7 @@ func createSmsxFolder(path, basePath string) {
 }
 
 func createZiplocFolder(path, basePath string) {
-	log.Println("doing single zip")
+	logger.Info("doing single zip")
 	var err error
 	var fromOption *option.Option
 	var newOption *option.Option

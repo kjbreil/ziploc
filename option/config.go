@@ -3,11 +3,12 @@ package option
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
 
-func ReadConfig(configPath string) (*Option, error) {
+func ReadConfig(configPath string, logger *slog.Logger) (*Option, error) {
 
 	if configPath == "" {
 		return nil, fmt.Errorf("config file not set")
@@ -32,9 +33,10 @@ func ReadConfig(configPath string) (*Option, error) {
 	o.instanceFiles = make(map[string]os.FileInfo)
 	o.configLocation = configPath
 
+	o.logger = logger
+
 	// set the root based on the config unless its a network drive
 	if o.BaseFolder[:2] != "\\\\" {
-
 		o.root = filepath.Dir(configPath)
 	}
 
