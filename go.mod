@@ -58,3 +58,4 @@ require (
 )
 
 replace github.com/kjbreil/sil => /Users/kjell/dev/sil
+replace github.com/kjbreil/crcloc => /Users/kjell/dev/crcloc

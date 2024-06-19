@@ -2,7 +2,6 @@ package dss
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"path/filepath"
@@ -92,8 +91,6 @@ func (d *DSS) add(fp string) error {
 		return fmt.Errorf("could not open %s with error: %v", fp, err)
 	}
 
-	b, err := io.ReadAll(f)
-
 	info, err := f.Stat()
 	if err != nil {
 		return fmt.Errorf("could not stat %s with error: %v", fp, err)
@@ -106,7 +103,7 @@ func (d *DSS) add(fp string) error {
 		Destination: Destination(fp),
 		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
-		Signature:   crcloc.Hash(b),
+		Signature:   crcloc.HashReader(f),
 	}
 	d.m.Lock()
 	d.Data = append(d.Data, &t)
