@@ -12,6 +12,7 @@ type Single struct {
 	WriteConfig      bool
 	PullFromInstance bool
 	Option           *option.Option
+	DetectChanges    bool
 }
 
 func (s *Single) Run() error {
@@ -24,8 +25,16 @@ func (s *Single) Run() error {
 		}
 	}
 
+	// if detecting changes run the detect and replace the "include" with only changed files
+	if s.DetectChanges {
+		err = s.Option.DetectChangesFromInstance(*s.Option.InstanceDir, s.Option.BaseFolder)
+		if err != nil {
+			return fmt.Errorf("error detecting changes: %w", err)
+		}
+	}
+
 	// if instanceDir is set walk it
-	if s.Option.InstanceDir != nil {
+	if s.Option.InstanceDir != nil && (s.PullFromInstance || s.JustWalk) {
 		err = s.Option.WalkInstance(*s.Option.InstanceDir)
 		if err != nil {
 			return err

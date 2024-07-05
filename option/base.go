@@ -59,6 +59,9 @@ func (o *Option) GetBaseDSS() error {
 }
 
 func (o *Option) FromBase(root string, keepTemp bool) error {
+	if root == "" && o.root != "" {
+		root = o.root
+	}
 	o.DeleteTemp(root)
 	var err error
 	// making the temp directory

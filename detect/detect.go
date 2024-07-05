@@ -59,10 +59,6 @@ func New(instanceDir string) *Detect {
 	}
 }
 
-func (d *Detect) AddIgnore(ignore ...string) {
-	d.ignores = append(d.ignores, ignore...)
-}
-
 func (d *Detect) AddOptionDir(optionDir ...string) {
 	d.optionsDirs = append(d.optionsDirs, optionDir...)
 }
@@ -124,6 +120,8 @@ func (d *Detect) Detect() error {
 		for _, optionDir := range d.optionsDirs {
 			nd := dss.New(filepath.Base(optionDir), 30)
 			nd.Author = optionDir
+			nd.Ignore = d.ignores
+			nd.Includes = d.includes
 			err = nd.WalkDirProgress(optionDir)
 			if err != nil {
 				return err
@@ -133,6 +131,8 @@ func (d *Detect) Detect() error {
 		for _, sampleDir := range d.samplesDirs {
 			nd := dss.New(filepath.Base(sampleDir), 25)
 			nd.Author = sampleDir
+			nd.Ignore = d.ignores
+			nd.Includes = d.includes
 			err = nd.WalkDirProgress(sampleDir)
 			if err != nil {
 				return err
@@ -168,7 +168,31 @@ func (d *Detect) Compare() (dss.Entries, error) {
 	}
 	return entries, nil
 }
+func (d *Detect) CompareReverse() (dss.Entries, error) {
+	err := d.Detect()
+	if err != nil {
+		return nil, err
+	}
+
+	var entries dss.Entries
+	for _, e := range d.originalDSS.Data {
+		if !d.customDSS.Matches(e) {
+			entries = append(entries, e)
+		}
+	}
+	return entries, nil
+}
 
 func (d *Detect) INIs() map[string][]*iniUpdater.U {
 	return d.inis
+}
+func (d *Detect) AddIgnore(ignore ...string) {
+	d.ignores = append(d.ignores, ignore...)
+}
+func (d *Detect) AddInclude(include ...string) {
+	d.includes = append(d.includes, include...)
+}
+
+func (d *Detect) ResetIncludes() {
+	d.includes = nil
 }

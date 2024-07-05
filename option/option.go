@@ -59,7 +59,7 @@ func (o *Option) Log() *slog.Logger {
 }
 
 func (o *Option) Folder(current string) string {
-	_, s := o.check(current)
+	_, s := checkIncluded(current, o.Include)
 	return strings.ToUpper(s)
 }
 
@@ -115,4 +115,8 @@ func (o *Option) Clean() {
 	o.TempDir = filepath.Clean(o.TempDir)
 	o.ZipOut = filepath.Clean(o.ZipOut)
 	o.Name = specialCase(o.Name)
+}
+
+func (o *Option) ChangeRoot(n string) {
+	o.root = n
 }

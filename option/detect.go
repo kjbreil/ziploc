@@ -16,6 +16,39 @@ type Detect struct {
 	Ignores      []string `json:"ignores,omitempty"`
 }
 
+func (o *Option) DetectChangesFromInstance(instanceDir string, baseDir string) error {
+	var err error
+	d := detect.New(instanceDir)
+	d.ResetIncludes()
+	d.AddIgnore(".*FirstLoad.*", ".*XchDev.*")
+	if len(o.Include) > 0 {
+		for _, s := range o.Include {
+			d.AddInclude(s...)
+		}
+
+	}
+
+	err = d.AddOptionDirs(filepath.Join(baseDir))
+	if err != nil {
+		return err
+	}
+
+	entries, err := d.Compare()
+	if err != nil {
+		return err
+	}
+
+	changedFiles := make([]string, 0, len(entries))
+
+	for _, eachEntry := range entries {
+		changedFiles = append(changedFiles, eachEntry.Script)
+	}
+
+	o.Include["every"] = changedFiles
+
+	return nil
+}
+
 func (o *Option) LookupCustomFiles() error {
 	if o.Detect == nil {
 		return nil

@@ -71,7 +71,13 @@ func (d *DSS) add(fp string) error {
 	if len(d.Includes) > 0 {
 		var match bool
 		for _, include := range d.Includes {
-			if strings.ToLower(filepath.Base(filepath.Dir(fp))) == include {
+			reg, err := regexp.Compile("(?i)" + include)
+			if err != nil {
+				// TODO: report error
+				continue
+			}
+
+			if reg.MatchString(fp) {
 				match = true
 			}
 		}
