@@ -90,7 +90,7 @@ func (d *DSS) walkDir(folder string, bar *progressbar.ProgressBar) error {
 	// 			return err
 	// 		}
 	// 		if bar != nil {
-	// 			err = bar.Add(1)
+	// 			err = bar.a(1)
 	// 			if err != nil {
 	// 				return err
 	// 			}

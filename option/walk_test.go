@@ -15,7 +15,7 @@ func Test_checkIncluded(t *testing.T) {
 		want    bool
 		want1   string
 	}{
-		// TODO: Add test cases.
+		// TODO: a test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
