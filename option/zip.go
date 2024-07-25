@@ -73,7 +73,7 @@ func (o *Option) MakeZip(root string) error {
 		if i.Name() == "." {
 			continue
 		}
-		err = addFileToZip(zipWriter, p, i, o.tempSubDir())
+		err = addFileToZip(zipWriter, p, i, filepath.Join(o.root, o.tempSubDir()))
 		if err != nil {
 			return err
 		}

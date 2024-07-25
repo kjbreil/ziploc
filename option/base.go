@@ -90,7 +90,7 @@ func (o *Option) FromBase(root string, keepTemp bool) error {
 	}
 
 	// make the DSS here
-	err = o.dss.WalkDir(filepath.Join(o.tempSubDir()))
+	err = o.dss.WalkDir(filepath.Join(o.root, o.tempSubDir()))
 	if err != nil {
 		return err
 	}
