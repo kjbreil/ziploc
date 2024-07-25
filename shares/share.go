@@ -3,6 +3,8 @@ package shares
 import (
 	"fmt"
 	"github.com/hirochachacha/go-smb2"
+	"github.com/kjbreil/crlf"
+	"io"
 	iofs "io/fs"
 	"net"
 	"os"
@@ -109,10 +111,25 @@ func (s *Share) WriteFile(path string, data []byte) error {
 	}
 	defer file.Close()
 
-	_, err = file.Write(data)
+	nwc := writerCloser(file)
+
+	_, err = nwc.Write(data)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+type wc struct {
+	io.Writer
+	io.Closer
+}
+
+func writerCloser(f io.WriteCloser) io.WriteCloser {
+
+	return wc{
+		Writer: crlf.NewWriter(f),
+		Closer: f,
+	}
 }

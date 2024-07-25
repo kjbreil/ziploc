@@ -10,6 +10,7 @@ require (
 	github.com/go-ini/ini v1.67.0
 	github.com/hirochachacha/go-smb2 v1.1.0
 	github.com/kjbreil/crcloc v0.0.0-20240619200433-6432ff988581
+	github.com/kjbreil/crlf v0.0.0-20210116185654-a98352303dd9
 	github.com/kjbreil/sil v0.0.0-20220317232344-90e7d4e3f62c
 	github.com/klauspost/compress v1.17.9
 	github.com/schollz/progressbar/v3 v3.14.4
