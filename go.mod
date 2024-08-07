@@ -8,14 +8,14 @@ require (
 	fyne.io/fyne v1.4.3
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/go-ini/ini v1.67.0
-	github.com/hirochachacha/go-smb2 v1.1.0
 	github.com/kjbreil/crcloc v0.0.0-20240619200433-6432ff988581
 	github.com/kjbreil/crlf v0.0.0-20210116185654-a98352303dd9
+	github.com/kjbreil/go-smb2 v1.1.0
 	github.com/kjbreil/sil v0.0.0-20220317232344-90e7d4e3f62c
 	github.com/klauspost/compress v1.17.9
 	github.com/schollz/progressbar/v3 v3.14.4
 	github.com/spf13/cobra v1.8.0
-	golang.org/x/text v0.16.0
+	golang.org/x/text v0.17.0
 )
 
 require (
@@ -50,11 +50,11 @@ require (
 	github.com/srwiley/rasterx v0.0.0-20220730225603-2ab79fcdd4ef // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	golang.org/x/crypto v0.25.0 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/image v0.17.0 // indirect
 	golang.org/x/net v0.27.0 // indirect
-	golang.org/x/sys v0.22.0 // indirect
-	golang.org/x/term v0.22.0 // indirect
+	golang.org/x/sys v0.23.0 // indirect
+	golang.org/x/term v0.23.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
@@ -64,3 +64,5 @@ replace github.com/kjbreil/sil => /Users/kjell/dev/sil
 replace github.com/kjbreil/crcloc => /Users/kjell/dev/crcloc
 
 replace github.com/kjbreil/loc-macro => /Users/kjell/dev/loc-macro
+
+replace github.com/kjbreil/go-smb2 => /Users/kjell/dev/go-smb2

@@ -2,8 +2,8 @@ package shares
 
 import (
 	"fmt"
-	"github.com/hirochachacha/go-smb2"
 	"github.com/kjbreil/crlf"
+	"github.com/kjbreil/go-smb2"
 	"io"
 	iofs "io/fs"
 	"net"
@@ -94,6 +94,31 @@ func (s *Share) WalkDir(path string) error {
 	return nil
 }
 
+func (s *Share) ReadFile(path string) ([]byte, error) {
+	if strings.HasPrefix(path, s.path) {
+		path = path[len(s.path):]
+	}
+	if strings.HasPrefix(path, "\\") {
+		path = path[1:]
+	}
+	if strings.HasPrefix(path, "/") {
+		path = path[1:]
+	}
+
+	file, err := s.fs.OpenFile(path, os.O_RDONLY, 0)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
 func (s *Share) WriteFile(path string, data []byte) error {
 	if strings.HasPrefix(path, s.path) {
 		path = path[len(s.path):]
@@ -119,6 +144,12 @@ func (s *Share) WriteFile(path string, data []byte) error {
 	}
 
 	return nil
+}
+
+func (s *Share) SetArchive(fn string, archive bool) error {
+
+	return s.fs.SetArchive(fn, archive)
+	// return s.fs.Chmod(fn, 0444)
 }
 
 type wc struct {

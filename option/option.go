@@ -117,6 +117,17 @@ func (o *Option) Clean() {
 	o.Name = specialCase(o.Name)
 }
 
-func (o *Option) ChangeRoot(n string) {
-	o.root = n
+func (o *Option) ChangeRoot(fp string) {
+	o.root = fp
+}
+
+func (o *Option) SingleDSS(path string) (*dss.DSS, error) {
+	d := dss.New(o.Name, o.Priority)
+
+	err := d.Add(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }

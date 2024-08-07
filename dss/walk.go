@@ -56,7 +56,7 @@ func (d *DSS) walkDir(folder string, bar *progressbar.ProgressBar) error {
 			for {
 				select {
 				case p := <-addChan:
-					err = d.add(p)
+					err = d.Add(p)
 					if err != nil {
 						log.Println(err)
 					}
@@ -85,7 +85,7 @@ func (d *DSS) walkDir(folder string, bar *progressbar.ProgressBar) error {
 	// for _, p := range paths {
 	// 	pp := p
 	// 	g.Go(func() error {
-	// 		err = d.add(pp)
+	// 		err = d.Add(pp)
 	// 		if err != nil {
 	// 			return err
 	// 		}

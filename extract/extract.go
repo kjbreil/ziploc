@@ -132,10 +132,6 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 		if err != nil {
 			return err
 		}
-
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }

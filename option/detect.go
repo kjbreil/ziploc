@@ -121,7 +121,9 @@ func (o *Option) CopyCustomFiles(entries dss.Entries) error {
 		}
 		out, err := os.Create(dest)
 		if err != nil {
-			_ = out.Close()
+			if out != nil {
+				_ = out.Close()
+			}
 			return err
 		}
 

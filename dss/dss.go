@@ -14,7 +14,7 @@ import (
 	"github.com/kjbreil/sil"
 )
 
-// dss is fed the info about the files and outputs a dss file
+// DSS is fed the info about the files and outputs a dss file
 type DSS struct {
 	name     string
 	SIL      *sil.SIL
@@ -48,8 +48,8 @@ func makeName(name string) string {
 	return strings.ToUpper(strings.ReplaceAll(name, " ", "_"))
 }
 
-// add a file to the dss, fp is the path of the file
-func (d *DSS) add(fp string) error {
+// Add a file to the dss, fp is the path of the file
+func (d *DSS) Add(fp string) error {
 
 	// ignore anything in the INBOX as that is not confirmed in the DSS
 	if Destination(fp) == "INBOX" {

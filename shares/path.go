@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-var NORMALIZE_PATH = true // normalize path arguments automatically
+var NormalizePath = true // normalize path arguments automatically
 
 const PathSeparator = '\\'
 
@@ -73,7 +73,7 @@ func validatePath(op string, path string, allowAbs bool) error {
 		return nil
 	}
 
-	if !NORMALIZE_PATH {
+	if !NormalizePath {
 		if strings.ContainsRune(path, '/') {
 			return &os.PathError{Op: op, Path: path, Err: errors.New("can't use '/' as a path separator; use '\\' instead")}
 		}
@@ -96,7 +96,7 @@ func validateMountPath(path string) error {
 }
 
 func normPath(path string) string {
-	if !NORMALIZE_PATH {
+	if !NormalizePath {
 		return path
 	}
 	path = strings.Replace(path, `/`, `\`, -1)
@@ -110,7 +110,7 @@ func normPath(path string) string {
 }
 
 func normPattern(pattern string) string {
-	if !NORMALIZE_PATH {
+	if !NormalizePath {
 		return pattern
 	}
 	pattern = strings.Replace(pattern, `/`, `\`, -1)
