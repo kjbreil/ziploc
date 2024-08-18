@@ -160,6 +160,14 @@ func (s *Share) SetArchive(fn string, archive bool) error {
 	// return s.fs.Chmod(fn, 0444)
 }
 
+func (s *Share) Stat(path string) (iofs.DirEntry, error) {
+	info, err := s.fs.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	return iofs.FileInfoToDirEntry(info), nil
+}
+
 type wc struct {
 	io.Writer
 	io.Closer
