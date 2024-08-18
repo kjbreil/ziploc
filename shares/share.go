@@ -72,18 +72,26 @@ func (s *Share) Close() {
 	s.conn.Close()
 }
 
-func (s *Share) WalkDir(path string) error {
+func (s *Share) WalkDir(path string, onFile func(path string, d iofs.DirEntry) error) error {
+
+	if path == "" {
+		path = "."
+	}
 
 	if strings.HasPrefix(path, s.path) {
 		path = path[len(s.path):]
 	}
 
-	err := iofs.WalkDir(s.fs.DirFS("."), ".", func(path string, d iofs.DirEntry, err error) error {
+	err := iofs.WalkDir(s.fs.DirFS(path), path, func(walkPath string, d iofs.DirEntry, err error) error {
 		// stat, err := s.fs.Stat(path)
-		// if err != nil {
-		// 	return err
-		// }
-		fmt.Println(path, d, err)
+		if err != nil {
+			return err
+		}
+
+		err = onFile(walkPath, d)
+		if err != nil {
+			return err
+		}
 
 		return nil
 	})

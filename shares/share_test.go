@@ -1,6 +1,10 @@
 package shares
 
-import "testing"
+import (
+	"fmt"
+	"io/fs"
+	"testing"
+)
 
 func Test_listShares(t *testing.T) {
 	s, err := New("\\\\PHYSREG\\LANELINK", "POS_NCBP", "*Loc!Sms901")
@@ -13,7 +17,10 @@ func Test_listShares(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	s.WalkDir("Storeman")
+	s.WalkDir("", func(path string, d fs.DirEntry) error {
+		fmt.Printf("%s: %s\n", path, d.Name())
+		return nil
+	})
 
 }
 

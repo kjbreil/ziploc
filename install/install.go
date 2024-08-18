@@ -25,7 +25,7 @@ package install
 // // @WIZRPL(TAR_PATH=@RUNXchDev\LaneLink\);
 // // @FMT(CMP,@DBHOT(FINDFIRST,@RUNXchDev\LaneLink\LaneLink.exe,#)=,'®EXEC(XCH=COPY)');
 //
-// func makeSrc(srcPath string) *macro.Macro {
+// func makeSrc(srcPath string) *macro.Main {
 // 	m := macros.CreateWizrpl(macro.StringRaw("SRC_PATH"), macro.StringRaw(srcPath))
 //
 // 	return m
