@@ -29,6 +29,8 @@ type Option struct {
 	Instance    *string `json:"instance,omitempty"`
 	InstanceDir *string `json:"instance_dir,omitempty"`
 
+	SignedDSS *string `json:"signed_dss,omitempty"`
+
 	Git *Git `json:"git,omitempty"`
 
 	IniMaps map[string]IniMap `json:"ini_maps,omitempty"`

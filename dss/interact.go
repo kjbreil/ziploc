@@ -31,6 +31,24 @@ func (d *DSS) Merge(n *DSS) {
 	d.SIL.View.Data = append(d.SIL.View.Data, n.SIL.View.Data...)
 }
 
+func (d *DSS) Overwrite(entries Entries) {
+entryLoop:
+	for _, e := range entries {
+		// if the entry is already  in data replace the signature
+		for _, de := range d.Data {
+			if strings.EqualFold(de.Script, e.Script) {
+				de.Signature = e.Signature
+				continue entryLoop
+			}
+		}
+		d.Data = append(d.Data, e)
+	}
+	d.SIL.View.Data = make([]interface{}, 0, len(d.Data))
+	for _, e := range d.Data {
+		d.SIL.View.Data = append(d.SIL.View.Data, *e)
+	}
+}
+
 func (d *DSS) Delete(script string) {
 	for i := 0; i < len(d.Data); i++ {
 		if strings.EqualFold(d.Data[i].Script, script) {

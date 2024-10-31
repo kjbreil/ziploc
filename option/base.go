@@ -95,6 +95,16 @@ func (o *Option) FromBase(root string, keepTemp bool) error {
 		return err
 	}
 
+	// Merge in a signed DSS file if one exists
+	if o.SignedDSS != nil {
+
+		var entries dss.Entries
+
+		entries, err = dss.Read(*o.SignedDSS)
+
+		o.dss.Overwrite(entries)
+	}
+
 	// Write the DSS to the temp directory
 	err = o.dss.Write(filepath.Join(root, o.tempSubDir(), o.getType(), o.Name))
 	if err != nil {
