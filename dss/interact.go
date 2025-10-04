@@ -41,6 +41,7 @@ entryLoop:
 				continue entryLoop
 			}
 		}
+		panic("entry not found cannot continue")
 		d.Data = append(d.Data, e)
 	}
 	d.SIL.View.Data = make([]interface{}, 0, len(d.Data))

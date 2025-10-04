@@ -32,8 +32,10 @@ func New(name string, priority int) *DSS {
 	s := sil.Make("dss", Table{})
 	// change to a LOAD file
 	s.View.Action = "LOAD"
+
 	// append the
 	activate(s)
+	s.Prepend(fmt.Sprintf("DELETE FROM DSS_TAB WHERE F2729 like '%%%s%%';", makeName(name)))
 
 	return &DSS{
 		name:     makeName(name),
