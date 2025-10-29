@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *option.Option) (*option.Option, error) {
+func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimic *option.Option, smsx bool) (*option.Option, error) {
 	// create the option object to make the json file
 
 	_, err := os.Stat(zipPath)
@@ -35,15 +35,14 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 	}
 
 	// if mimicking an option build the base dir from the option base dir - 1 dir up
-	if optionMimick != nil {
-		basePath = filepath.Dir(filepath.Clean(optionMimick.BaseFolder))
+	if optionMimic != nil {
+		basePath = filepath.Dir(filepath.Clean(optionMimic.BaseFolder))
 	}
 	// if nesting in last (usually) add that to the base dir from the last part of the sample
 	if nestInLast {
 		// log.Println("zp", strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
 		// basePath = filepath.Join(basePath, getSampleNameLast(getSampleName(r)))
 		basePath = filepath.Join(basePath, strings.ReplaceAll(filepath.Base(zipPath), filepath.Ext(zipPath), ""))
-
 	}
 
 	o := &option.Option{
@@ -65,11 +64,16 @@ func ReadZip(zipPath string, basePath string, nestInLast bool, optionMimick *opt
 		Git:         nil,
 		IniMaps:     nil,
 	}
+	o.Clean()
 
-	if optionMimick != nil {
-		o.ZipOut = optionMimick.ZipOut
-		o.TempDir = optionMimick.TempDir
-		o.Priority = optionMimick.Priority
+	if optionMimic != nil {
+		o.ZipOut = optionMimic.ZipOut
+		o.TempDir = optionMimic.TempDir
+		o.Priority = optionMimic.Priority
+	}
+
+	if smsx {
+		basePath = filepath.Join(basePath, "SmsCode")
 	}
 
 	err = extractZip(r, basePath)
@@ -88,7 +92,9 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 	}
 	for _, f := range r.File {
 		// log.Println(getOptionSampleSampleName(r))
-		outFilePath := filepath.Join(dest, strings.ReplaceAll(f.Name, getOptionSampleSampleName(r), ""))
+		optionSampleName := getOptionSampleSampleName(r)
+		fName := f.Name
+		outFilePath := filepath.Join(dest, strings.ReplaceAll(fName, optionSampleName, ""))
 		if !strings.HasPrefix(outFilePath, filepath.Clean(dest)+string(os.PathSeparator)) {
 			return fmt.Errorf("%s: illegal file path", outFilePath)
 		}
@@ -123,10 +129,6 @@ func extractZip(r *zip.ReadCloser, dest string) error {
 			return err
 		}
 		err = rc.Close()
-		if err != nil {
-			return err
-		}
-
 		if err != nil {
 			return err
 		}

@@ -13,7 +13,7 @@ type SMSX struct {
 	ProjectName    string
 	Creator        string
 	SamplePriority int
-	IsOption       bool
+	IsOption       int `xml:"isOption"`
 }
 
 func ReadSmsxConfig(configPath string) (*Option, error) {
@@ -39,10 +39,15 @@ func ReadSmsxConfig(configPath string) (*Option, error) {
 
 	err = xml.Unmarshal(b, &smsx)
 
+	var isOption bool
+	if smsx.IsOption == 1 {
+		isOption = true
+	}
+
 	o := Option{
 		Name:           smsx.ProjectName,
 		Priority:       smsx.SamplePriority,
-		IsOption:       smsx.IsOption,
+		IsOption:       isOption,
 		Include:        map[string][]string{"every": []string{".*"}},
 		Exclude:        nil,
 		Ignore:         nil,
@@ -75,6 +80,29 @@ func ReadSmsxConfig(configPath string) (*Option, error) {
 	if o.Priority == 0 {
 		o.Priority = 30
 	}
-	o.WriteConfig()
+
+	o.Clean()
+
 	return &o, err
+}
+func (o *Option) WriteSmsx(path string) error {
+
+	isOption := 0
+	if o.IsOption {
+		isOption = 1
+	}
+
+	smsx := SMSX{
+		ProjectName:    o.Name,
+		Creator:        "NCBP",
+		SamplePriority: o.Priority,
+		IsOption:       isOption,
+	}
+
+	b, err := xml.Marshal(smsx)
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(path, b, 0666)
 }

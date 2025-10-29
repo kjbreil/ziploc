@@ -18,3 +18,6 @@ out/**
 ziploc
 
 *.zip
+
+test_files/**
+.DS_Store

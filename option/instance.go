@@ -72,6 +72,7 @@ func (o *Option) FromInstance() error {
 	root := o.root
 	for ep, ef := range o.instanceFiles {
 		f, err := os.Open(ep)
+		defer f.Close()
 		if err != nil {
 			return err
 		}

@@ -5,6 +5,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -28,9 +29,13 @@ type Option struct {
 	Instance    *string `json:"instance,omitempty"`
 	InstanceDir *string `json:"instance_dir,omitempty"`
 
+	SignedDSS *string `json:"signed_dss,omitempty"`
+
 	Git *Git `json:"git,omitempty"`
 
 	IniMaps map[string]IniMap `json:"ini_maps,omitempty"`
+
+	Detect *Detect `json:"detect,omitempty"`
 
 	// Not Exported
 	root           string
@@ -38,6 +43,7 @@ type Option struct {
 	instanceFiles  map[string]os.FileInfo
 	dss            *dss.DSS
 	configLocation string
+	logger         *slog.Logger
 }
 
 type Git struct {
@@ -47,8 +53,15 @@ type Git struct {
 	AuthToken string `json:"auth_token"`
 }
 
+func (o *Option) Log() *slog.Logger {
+	if o.logger == nil {
+		o.logger = slog.Default()
+	}
+	return o.logger
+}
+
 func (o *Option) Folder(current string) string {
-	_, s := o.check(current)
+	_, s := checkIncluded(current, o.Include)
 	return strings.ToUpper(s)
 }
 
@@ -67,12 +80,13 @@ func (o *Option) getType() string {
 
 // makePath uses filepath.Join to safely create the path to the file using OS independent paths
 func (o *Option) makePath(root string, folder string, filename string) string {
-	p := filepath.Join(root, o.tempSubDir(), o.getType(), o.dss.Name, folder, filename)
+	p := filepath.Join(root, o.tempSubDir(), o.getType(), o.Name, folder, filename)
 	return p
 }
 
 func (o *Option) makeBuildPath(root string, folder string, filename string) string {
 	p := filepath.Join(root, o.BaseFolder, folder, filename)
+
 	return p
 }
 
@@ -94,4 +108,28 @@ func (o *Option) tempSubDir() string {
 
 func (o *Option) SetConfigLocation(name string) {
 	o.configLocation = name
+}
+
+// Clean updates folders to be clean as per filepant.Clean()
+// removes .. and adjusts for os version
+func (o *Option) Clean() {
+	o.BaseFolder = filepath.Clean(o.BaseFolder)
+	o.TempDir = filepath.Clean(o.TempDir)
+	o.ZipOut = filepath.Clean(o.ZipOut)
+	o.Name = specialCase(o.Name)
+}
+
+func (o *Option) ChangeRoot(fp string) {
+	o.root = fp
+}
+
+func (o *Option) SingleDSS(path string) (*dss.DSS, error) {
+	d := dss.New(o.Name, o.Priority)
+
+	err := d.Add(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return d, nil
 }

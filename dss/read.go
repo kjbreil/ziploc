@@ -2,28 +2,22 @@ package dss
 
 import (
 	"github.com/kjbreil/sil/silread"
-	"log"
 	"os"
 )
 
-func Read(filename string) *DSS {
-
-	var t Table
-
+func Read(filename string) (Entries, error) {
+	t := make([]Table, 0)
 	b, _ := os.ReadFile(filename)
-
-	m, err := silread.Unmarshal(b, t)
-
+	err := silread.Unmarshal(b, &t)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
-	bn, err := m.Marshal(false)
-	if err != nil {
-		log.Fatal(err)
+	rt := make(Entries, 0, len(t))
+
+	for _, v := range t {
+		rt = append(rt, &v)
 	}
 
-	log.Println(string(bn))
-
-	return nil
+	return rt, nil
 }

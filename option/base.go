@@ -49,7 +49,7 @@ func (o *Option) GetBaseDSS() error {
 	// 		continue
 	// 	}
 	//
-	// 	err := o.dss.Add(path)
+	// 	err := o.dss.add(path)
 	// 	if err != nil {
 	// 		return fmt.Errorf("error adding %s to dss: %v\n", path, err)
 	// 	}
@@ -58,41 +58,10 @@ func (o *Option) GetBaseDSS() error {
 	return nil
 }
 
-// filepath.Join(o.tempSubDir())
-func (o *Option) dssWalkTempDir(folder string) error {
-
-	stat, err := os.Stat(folder)
-	if err != nil {
-		return err
-	}
-	if !stat.IsDir() {
-		return fmt.Errorf("%s is not a directory", folder)
-	}
-
-	files, err := os.ReadDir(folder)
-	if err != nil {
-		return err
-	}
-
-	for _, eachFile := range files {
-		p := filepath.Join(folder, eachFile.Name())
-		if eachFile.IsDir() {
-			err = o.dssWalkTempDir(p)
-			if err != nil {
-				return err
-			}
-			continue
-		}
-		// log.Printf("adding file: %s\n", p)
-		err := o.dss.Add(p)
-		if err != nil {
-			return fmt.Errorf("error adding %s to dss: %v\n", p, err)
-		}
-	}
-	return nil
-}
-
 func (o *Option) FromBase(root string, keepTemp bool) error {
+	if root == "" && o.root != "" {
+		root = o.root
+	}
 	o.DeleteTemp(root)
 	var err error
 	// making the temp directory
@@ -121,13 +90,23 @@ func (o *Option) FromBase(root string, keepTemp bool) error {
 	}
 
 	// make the DSS here
-	err = o.dssWalkTempDir(filepath.Join(o.tempSubDir()))
+	err = o.dss.WalkDir(filepath.Join(o.root, o.tempSubDir()))
 	if err != nil {
 		return err
 	}
 
+	// Merge in a signed DSS file if one exists
+	if o.SignedDSS != nil {
+
+		var entries dss.Entries
+
+		entries, err = dss.Read(*o.SignedDSS)
+
+		o.dss.Overwrite(entries)
+	}
+
 	// Write the DSS to the temp directory
-	err = o.dss.Write(filepath.Join(root, o.tempSubDir(), o.getType(), o.dss.Name))
+	err = o.dss.Write(filepath.Join(root, o.tempSubDir(), o.getType(), o.Name))
 	if err != nil {
 		return err
 	}
@@ -158,12 +137,15 @@ func (o *Option) CopyBase(root string) error {
 			return err
 		}
 		// folder := ep[len(b) : len(ep)-len(ef.Name())]
-		folder := strings.Replace(filepath.Dir(ep), o.BaseFolder, "", 1)
+		// remove anything to the left of basefolder in each path
+		_, folder, _ := strings.Cut(filepath.Dir(ep), o.BaseFolder)
+
+		// folder := strings.Replace(filepath.Dir(ep), o.BaseFolder, "", 1)
 		if len(folder) > 0 && folder[0] == os.PathSeparator {
 			folder = folder[1:]
 		}
 
-		//folder := filepath.Base(filepath.Dir(ep))
+		// folder := filepath.Base(filepath.Dir(ep))
 		// log.Println(filepath.Base(o.BaseFolder), folder)
 		if filepath.Base(o.BaseFolder) == folder {
 			folder = ""

@@ -3,12 +3,12 @@ package option
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
 
-func ReadConfig(configPath string) (*Option, error) {
+func ReadConfig(configPath string, logger *slog.Logger) (*Option, error) {
 
 	if configPath == "" {
 		return nil, fmt.Errorf("config file not set")
@@ -33,9 +33,10 @@ func ReadConfig(configPath string) (*Option, error) {
 	o.instanceFiles = make(map[string]os.FileInfo)
 	o.configLocation = configPath
 
+	o.logger = logger
+
 	// set the root based on the config unless its a network drive
 	if o.BaseFolder[:2] != "\\\\" {
-
 		o.root = filepath.Dir(configPath)
 	}
 
@@ -44,23 +45,27 @@ func ReadConfig(configPath string) (*Option, error) {
 		o.Priority = 30
 	}
 
+	o.Clean()
+
 	return &o, err
 }
 
 func (o *Option) DefaultExclude() {
-	o.Exclude = []string{
+	o.Exclude = append(o.Exclude, []string{
 		"TEMP",
 		"SAMPLES",
 		"OPTIONS",
-	}
+	}...)
 }
 
 func (o *Option) DefaultInclude() {
-	o.Include = make(map[string][]string)
-	o.Include["every"] = []string{".*"}
+	if o.Include == nil {
+		o.Include = make(map[string][]string)
+	}
+	o.Include["every"] = append(o.Include["every"], ".*")
 }
 
-func ConfigTemplate(withGit bool) {
+func ConfigTemplate(withGit bool) error {
 	// setup Option information
 	o := Option{
 		Name:           "SOME SAMPLE",
@@ -85,16 +90,18 @@ func ConfigTemplate(withGit bool) {
 		"samples.ini",
 	}
 
-	o.WriteConfig()
+	return o.WriteConfig()
 }
 
-func (o *Option) WriteConfig() {
+func (o *Option) WriteConfig() error {
 	b, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
 	err = os.WriteFile(o.configLocation, b, 0666)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
+
+	return nil
 }

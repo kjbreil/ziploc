@@ -7,6 +7,8 @@ import (
 func TestRead(t *testing.T) {
 	filename := "./dss.sql"
 
-	Read(filename)
-	t.Fail()
+	_, err := Read(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

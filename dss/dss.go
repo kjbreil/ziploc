@@ -2,23 +2,29 @@ package dss
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/kjbreil/crcloc"
 
 	"github.com/kjbreil/sil"
 )
 
-// dss is fed the info about the files and outputs a dss file
+// DSS is fed the info about the files and outputs a dss file
 type DSS struct {
-	Name     string
+	name     string
 	SIL      *sil.SIL
-	Data     []Table
+	Data     Entries
+	Ignore   []string
 	priority int
+	Includes []string
+
+	m      *sync.Mutex
+	Author string
 }
 
 func New(name string, priority int) *DSS {
@@ -26,13 +32,17 @@ func New(name string, priority int) *DSS {
 	s := sil.Make("dss", Table{})
 	// change to a LOAD file
 	s.View.Action = "LOAD"
+
 	// append the
 	activate(s)
+	s.Prepend(fmt.Sprintf("DELETE FROM DSS_TAB WHERE F2729 like '%%%s%%';", makeName(name)))
 
 	return &DSS{
-		Name:     makeName(name),
+		name:     makeName(name),
 		SIL:      s,
 		priority: priority,
+		Author:   "NCBP",
+		m:        &sync.Mutex{},
 	}
 }
 
@@ -48,7 +58,43 @@ func (d *DSS) Add(fp string) error {
 		return nil
 	}
 
+	// ignore anything specified in the ignore list
+	for _, ignore := range d.Ignore {
+		reg, err := regexp.Compile("(?i)" + ignore)
+		if err != nil {
+			// TODO: report error
+			continue
+		}
+
+		if reg.MatchString(fp) {
+			return nil
+		}
+	}
+	if len(d.Includes) > 0 {
+		var match bool
+		for _, include := range d.Includes {
+			reg, err := regexp.Compile("(?i)" + include)
+			if err != nil {
+				// TODO: report error
+				continue
+			}
+
+			if reg.MatchString(fp) {
+				match = true
+			}
+		}
+		if !match {
+			return nil
+		}
+	}
+
 	f, err := os.Open(fp)
+	defer func(f *os.File) {
+		err = f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}(f)
 	if err != nil {
 		return fmt.Errorf("could not open %s with error: %v", fp, err)
 	}
@@ -58,30 +104,19 @@ func (d *DSS) Add(fp string) error {
 		return fmt.Errorf("could not stat %s with error: %v", fp, err)
 	}
 
-	b := make([]byte, info.Size())
-
-	_, err = f.Read(b)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	err = f.Close()
-	if err != nil {
-		return err
-	}
-
 	t := Table{
 		Priority:    d.priority,
-		Author:      "NCBP",
-		Option:      d.Name,
+		Author:      d.Author,
+		Option:      d.name,
 		Destination: Destination(fp),
 		Script:      filepath.Base(fp),
 		FileDate:    sil.JulianDateTime(info.ModTime()),
-		Signature:   crcloc.Hash(b),
+		Signature:   crcloc.HashReader(f),
 	}
-
-	d.Data = append(d.Data, t)
+	d.m.Lock()
+	d.Data = append(d.Data, &t)
 	d.SIL.View.Data = append(d.SIL.View.Data, t)
+	d.m.Unlock()
 
 	return nil
 }
@@ -89,7 +124,7 @@ func (d *DSS) Add(fp string) error {
 // Write writes a dss to file
 func (d *DSS) Write(folder string) error {
 
-	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.Name))
+	fullpath := path.Join(folder, "Inbox", fmt.Sprintf("DSS_%s.sql", d.name))
 
 	if _, err := os.Stat(filepath.Dir(fullpath)); os.IsNotExist(err) {
 		err = os.MkdirAll(filepath.Dir(fullpath), 0777)

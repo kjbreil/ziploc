@@ -42,20 +42,20 @@ func (o *Option) Walk(folder string) error {
 }
 
 func (o *Option) included(current string) bool {
-	b, _ := o.check(current)
+	b, _ := checkIncluded(current, o.Include)
 	return b
 }
 
-func (o *Option) check(current string) (bool, string) {
+func checkIncluded(current string, include map[string][]string) (bool, string) {
 	if current[0] == []byte(".")[0] {
 		return false, ""
 	}
 
-	for folder := range o.Include {
+	for folder := range include {
 		if folder == "EVERY" {
 			continue
 		}
-		for _, item := range o.Include[folder] {
+		for _, item := range include[folder] {
 			reg, err := regexp.Compile("(?i)" + item)
 			if err != nil {
 				log.Panicf("regex could not compile %s: %v", item, err)
@@ -68,7 +68,7 @@ func (o *Option) check(current string) (bool, string) {
 		}
 	}
 
-	for _, item := range o.Include["every"] {
+	for _, item := range include["every"] {
 		reg, err := regexp.Compile("(?i)" + item)
 		if err != nil {
 			log.Panicf("regex could not compile %s: %v", item, err)
