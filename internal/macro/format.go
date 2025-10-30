@@ -23,8 +23,9 @@ func LineS(s string) string {
 	return string(b)
 }
 
-// CRLF returns a new byte slice that has been converted
-func CRLF(ob []byte) ([]byte, error) {
+// ConvertUTF8ToWindows1252 converts UTF-8 encoded bytes to Windows-1252 encoding
+// and converts LF line endings to CRLF. This is the core conversion function.
+func ConvertUTF8ToWindows1252(ob []byte) ([]byte, error) {
 
 	for i := range ob {
 		// check if first character is newline, convert if needed
@@ -69,6 +70,12 @@ func CRLF(ob []byte) ([]byte, error) {
 	return fb, nil
 }
 
+// CRLF returns a new byte slice that has been converted
+// Deprecated: Use ConvertUTF8ToWindows1252 directly
+func CRLF(ob []byte) ([]byte, error) {
+	return ConvertUTF8ToWindows1252(ob)
+}
+
 func Correct(dst *os.File, src *os.File, force bool) error {
 	extToCorrect := map[string]bool{
 		".htm": true,
@@ -90,7 +97,7 @@ func Correct(dst *os.File, src *os.File, force bool) error {
 
 	_, ok := extToCorrect[strings.ToLower(path.Ext(src.Name()))]
 	if ok || force {
-		b, err = CRLF(b)
+		b, err = ConvertUTF8ToWindows1252(b)
 		if err != nil {
 			return fmt.Errorf("CRLF conversion failed: %v", err)
 		}
