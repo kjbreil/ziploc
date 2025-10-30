@@ -27,7 +27,7 @@ func LineS(s string) string {
 // and converts LF line endings to CRLF. This is the core conversion function.
 func ConvertUTF8ToWindows1252(ob []byte) ([]byte, error) {
 
-	for i := range ob {
+	for i := 0; i < len(ob); i++ {
 		// check if first character is newline, convert if needed
 		if i == 0 && ob[i] == 10 {
 			ob = append(ob, 0)
@@ -60,12 +60,11 @@ func ConvertUTF8ToWindows1252(ob []byte) ([]byte, error) {
 			if err == transform.ErrShortSrc {
 				break
 			}
+			i = si + i + 1
 		} else {
 			fb = append(fb, ib[:di]...)
-
+			i = si + i
 		}
-
-		i = si + i + 1
 	}
 	return fb, nil
 }
