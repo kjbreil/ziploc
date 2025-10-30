@@ -3,17 +3,19 @@ package dss
 import (
 	"context"
 	"fmt"
-	"github.com/schollz/progressbar/v3"
 	"log"
 	"os"
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/schollz/progressbar/v3"
 )
 
 func (d *DSS) WalkDir(folder string) error {
 	return d.walkDir(folder, nil)
 }
+
 func (d *DSS) WalkDirProgress(folder string) error {
 	bar := progressbar.NewOptions64(
 		int64(100),

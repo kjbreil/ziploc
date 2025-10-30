@@ -1,14 +1,25 @@
 package dss
 
 import (
-	"github.com/kjbreil/sil/silread"
+	"io"
 	"os"
+
+	"github.com/kjbreil/sil/silread"
 )
 
-func Read(filename string) (Entries, error) {
-	t := make([]Table, 0)
-	b, _ := os.ReadFile(filename)
-	err := silread.Unmarshal(b, &t)
+// Read reads DSS data from an io.Reader and returns parsed Entries
+func Read(r io.Reader) (Entries, error) {
+	var b []byte
+	var err error
+	var t []Table
+
+	b, err = io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+
+	t = make([]Table, 0)
+	err = silread.Unmarshal(b, &t)
 	if err != nil {
 		return nil, err
 	}
@@ -20,4 +31,18 @@ func Read(filename string) (Entries, error) {
 	}
 
 	return rt, nil
+}
+
+// ReadFile reads DSS data from a file and returns parsed Entries
+func ReadFile(filename string) (Entries, error) {
+	var f *os.File
+	var err error
+
+	f, err = os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return Read(f)
 }
