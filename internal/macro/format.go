@@ -2,11 +2,12 @@ package macro
 
 import (
 	"fmt"
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/transform"
 	"os"
 	"path"
 	"strings"
+
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 // Line returns a line encoded in Windows1252 with a line ending
@@ -41,7 +42,6 @@ func CRLF(ob []byte) ([]byte, error) {
 	}
 
 	enc := charmap.Windows1252.NewEncoder()
-	// dec := charmap.Windows1252.NewDecoder()
 	var i int
 	var fb []byte
 	// dis is magic

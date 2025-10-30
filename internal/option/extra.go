@@ -1,7 +1,7 @@
 package option
 
 import (
-	"github.com/kjbreil/ziploc/macro"
+	"github.com/kjbreil/ziploc/internal/macro"
 	"os"
 )
 

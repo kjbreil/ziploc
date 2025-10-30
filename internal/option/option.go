@@ -1,7 +1,7 @@
 package option
 
 import (
-	"github.com/kjbreil/ziploc/dss"
+	"github.com/kjbreil/ziploc/internal/dss"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"log"

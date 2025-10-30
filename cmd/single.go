@@ -8,8 +8,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/kjbreil/ziploc/create"
-	"github.com/kjbreil/ziploc/option"
+	"github.com/kjbreil/ziploc/internal/create"
+	"github.com/kjbreil/ziploc/internal/option"
 
 	"github.com/spf13/cobra"
 )

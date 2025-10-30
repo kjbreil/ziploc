@@ -2,13 +2,14 @@ package option
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/dss"
-	"github.com/kjbreil/ziploc/iniUpdater"
-	"github.com/kjbreil/ziploc/macro"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/kjbreil/ziploc/internal/dss"
+	"github.com/kjbreil/ziploc/internal/iniUpdater"
+	"github.com/kjbreil/ziploc/internal/macro"
 )
 
 func (o *Option) GetBaseFiles() error {
@@ -100,7 +101,7 @@ func (o *Option) FromBase(root string, keepTemp bool) error {
 
 		var entries dss.Entries
 
-		entries, err = dss.Read(*o.SignedDSS)
+		entries, err = dss.ReadFile(*o.SignedDSS)
 
 		o.dss.Overwrite(entries)
 	}

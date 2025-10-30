@@ -3,7 +3,7 @@ package create
 import (
 	"fmt"
 
-	"github.com/kjbreil/ziploc/option"
+	"github.com/kjbreil/ziploc/internal/option"
 )
 
 type Single struct {

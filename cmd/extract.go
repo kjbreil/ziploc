@@ -5,8 +5,8 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/extract"
-	"github.com/kjbreil/ziploc/option"
+	"github.com/kjbreil/ziploc/internal/extract"
+	"github.com/kjbreil/ziploc/internal/option"
 	"io/fs"
 	"log"
 	"os"
