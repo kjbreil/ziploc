@@ -2,11 +2,12 @@ package macro
 
 import (
 	"fmt"
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/transform"
 	"os"
 	"path"
 	"strings"
+
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 // Line returns a line encoded in Windows1252 with a line ending
@@ -22,10 +23,11 @@ func LineS(s string) string {
 	return string(b)
 }
 
-// CRLF returns a new byte slice that has been converted
-func CRLF(ob []byte) ([]byte, error) {
+// ConvertUTF8ToWindows1252 converts UTF-8 encoded bytes to Windows-1252 encoding
+// and converts LF line endings to CRLF. This is the core conversion function.
+func ConvertUTF8ToWindows1252(ob []byte) ([]byte, error) {
 
-	for i := range ob {
+	for i := 0; i < len(ob); i++ {
 		// check if first character is newline, convert if needed
 		if i == 0 && ob[i] == 10 {
 			ob = append(ob, 0)
@@ -41,7 +43,6 @@ func CRLF(ob []byte) ([]byte, error) {
 	}
 
 	enc := charmap.Windows1252.NewEncoder()
-	// dec := charmap.Windows1252.NewDecoder()
 	var i int
 	var fb []byte
 	// dis is magic
@@ -59,14 +60,19 @@ func CRLF(ob []byte) ([]byte, error) {
 			if err == transform.ErrShortSrc {
 				break
 			}
+			i = si + i + 1
 		} else {
 			fb = append(fb, ib[:di]...)
-
+			i = si + i
 		}
-
-		i = si + i + 1
 	}
 	return fb, nil
+}
+
+// CRLF returns a new byte slice that has been converted
+// Deprecated: Use ConvertUTF8ToWindows1252 directly
+func CRLF(ob []byte) ([]byte, error) {
+	return ConvertUTF8ToWindows1252(ob)
 }
 
 func Correct(dst *os.File, src *os.File, force bool) error {
@@ -90,7 +96,7 @@ func Correct(dst *os.File, src *os.File, force bool) error {
 
 	_, ok := extToCorrect[strings.ToLower(path.Ext(src.Name()))]
 	if ok || force {
-		b, err = CRLF(b)
+		b, err = ConvertUTF8ToWindows1252(b)
 		if err != nil {
 			return fmt.Errorf("CRLF conversion failed: %v", err)
 		}

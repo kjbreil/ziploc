@@ -2,8 +2,8 @@ package option
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/iniUpdater"
-	"github.com/kjbreil/ziploc/macro"
+	"github.com/kjbreil/ziploc/internal/iniUpdater"
+	"github.com/kjbreil/ziploc/internal/macro"
 	"os"
 	"path/filepath"
 )

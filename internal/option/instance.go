@@ -2,8 +2,8 @@ package option
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/dss"
-	"github.com/kjbreil/ziploc/macro"
+	"github.com/kjbreil/ziploc/internal/dss"
+	"github.com/kjbreil/ziploc/internal/macro"
 	"log"
 	"os"
 	"path/filepath"

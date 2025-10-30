@@ -2,7 +2,7 @@ package extract
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/option"
+	"github.com/kjbreil/ziploc/internal/option"
 	"github.com/klauspost/compress/zip"
 	"io"
 	"log"

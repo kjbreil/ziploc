@@ -1,7 +1,7 @@
 package detect
 
 import (
-	"github.com/kjbreil/ziploc/iniUpdater"
+	"github.com/kjbreil/ziploc/internal/iniUpdater"
 	"path/filepath"
 	"strings"
 )

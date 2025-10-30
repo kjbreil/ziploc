@@ -1,4 +1,4 @@
-package instance
+package install
 
 import "testing"
 

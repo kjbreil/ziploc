@@ -2,8 +2,8 @@ package detect
 
 import (
 	"fmt"
-	"github.com/kjbreil/ziploc/dss"
-	"github.com/kjbreil/ziploc/iniUpdater"
+	"github.com/kjbreil/ziploc/internal/dss"
+	"github.com/kjbreil/ziploc/internal/iniUpdater"
 	"os"
 	"path/filepath"
 )

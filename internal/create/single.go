@@ -3,7 +3,7 @@ package create
 import (
 	"fmt"
 
-	"github.com/kjbreil/ziploc/option"
+	"github.com/kjbreil/ziploc/internal/option"
 )
 
 type Single struct {
@@ -25,7 +25,7 @@ func (s *Single) Run() error {
 		}
 	}
 
-	// if detecting changes run the detect and replace the "include" with only changed files
+	// if detecting change's then run detect and replace the "include" with only changed files
 	if s.DetectChanges {
 		err = s.Option.DetectChangesFromInstance(*s.Option.InstanceDir, s.Option.BaseFolder)
 		if err != nil {
@@ -33,7 +33,7 @@ func (s *Single) Run() error {
 		}
 	}
 
-	// if instanceDir is set walk it
+	// if instanceDir is set then walk it
 	if s.Option.InstanceDir != nil && (s.PullFromInstance || s.JustWalk) {
 		err = s.Option.WalkInstance(*s.Option.InstanceDir)
 		if err != nil {
